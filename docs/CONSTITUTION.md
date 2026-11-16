@@ -1,12 +1,13 @@
 # 📜 The Project Constitution
 
 <!--
-Current version: 1.3.0
+Current version: 1.5.0
 Ratified by: Riccardo 🦖, Emiliano 🏎️, Antigravity AI 🤖
+v1.5.0 amendments (§11 wording, §12, §13) approved 2026-11-13 by Riccardo 🦖 and AI 🤖 (2 of 3).
 -->
 
 This is the **immutable meta-constitution** of the repository.
-`AGENTS.md` (and its symlink `GEMINI.md`), `workshop/UNTOUCHABLE-CONSTITUTION.md`, and all contributor workflows **MUST** adhere to these principles at all times.
+`AGENTS.md` (and its symlinks, see §12) and all contributor workflows **MUST** adhere to these principles at all times.
 
 Any modification to this constitution requires a **2/3 supermajority agreement** among the three maintainer personas:
 1. **Riccardo** (Supreme Leader & Author 🦖)
@@ -80,4 +81,26 @@ Never present the learner with a bifurcated choice between two development modes
 The canonical production deployment on Google Cloud Run **MUST** be deployed using declarative multi-container specifications via `gcloud [alpha] run compose up compose.prod.yaml` (or its direct declarative equivalent):
 - **Three-Container Invariant:** Production Cloud Run must run all three coordinated sidecars: `web` (Puma ingress on port 8080), `worker` (Solid Queue processor), and `cloudsql-proxy` (mTLS Auth Proxy).
 - **No Deceptive Single-Container Shortcuts:** Deploying production via standard single-container CLI commands (`gcloud run deploy --source .`) while teaching a 3-container architecture is strictly forbidden. The learner's live Cloud Run Console "Containers" tab must genuinely display the 3 distinct sidecar containers.
+
+### 11. Zero Gemini API Keys (100% Vertex AI with Application Default Credentials)
+Static consumer API keys (`GEMINI_API_KEY`) are **STRICTLY PROHIBITED** across the entire repository, including application code (`blog/`), Docker Compose configurations (`compose.yaml`, `compose.prod.yaml`), environment templates (`.env.dist`, `.env.example`), and workshop instructions (`workshop/CODELAB.md`, `workshop/SKELETON.md`):
+- **Why:** Consumer Google AI Studio keys (`generativelanguage.googleapis.com`) bypass enterprise IAM governance and create silent precedence traps where a dummy or stale `GEMINI_API_KEY` overrides live Cloud Run Service Account credentials, causing HTTP 400 (`API key not valid`) failures in background workers.
+- **Canonical Standard:** All Generative AI workloads (including Nano Banana / Gemini cover generation and audio synthesis) **MUST** authenticate exclusively via **Vertex AI (`aiplatform.googleapis.com`)** using keyless **Application Default Credentials (ADC)**:
+  - **Local Development, Rails on the host:** `gcloud auth application-default login` + `GOOGLE_CLOUD_PROJECT`.
+  - **Local Development, canonical Docker Compose stack (§9):** containers do not receive host credentials by default, so AI features return the bundled mock asset (`nanobanana_fake_cover.png`). Mounting host ADC read-only into `web` and `worker` is allowed only as an explicit opt-in and must never be required to start the stack.
+  - **Google Cloud Run:** Dedicated IAM Service Account (`rails-cloudrun-sa`) granted `roles/aiplatform.user` via the Cloud Run metadata server.
+  - **Offline / Unauthenticated Fallback:** When `GOOGLE_CLOUD_PROJECT` or ADC is unavailable, the application falls back to the bundled mock asset without raising, preserving the Localhost Invariant (§6).
+
+### 12. Harness-Agnostic Agent Instructions
+`AGENTS.md` is the single canonical instruction file for AI coding harnesses.
+- `GEMINI.md` and `CLAUDE.md` **MUST** be symlinks to `AGENTS.md`, never copies.
+- Harness-specific files may add discovery only (symlinks, skill paths). They must not carry rules that differ from `AGENTS.md`.
+- No specific harness may be required: every workshop step must be completable from `workshop/CODELAB.md` and `just` recipes alone.
+- Verification stays deterministic and harness-independent (`just workshop-test`, §6).
+
+### 13. Provider-Specific Code Lives at Named Seams
+This blueprint targets Google Cloud. Its architecture patterns are meant to transfer to other clouds: app, worker and database-proxy containers from one Compose file; private object storage with short-lived signed URLs; managed PostgreSQL with no public IP; secrets injected at runtime; single-line JSON logs on STDOUT.
+- Provider-specific code **MUST** stay confined to these seams: `blog/config/storage.yml`, `blog/config/database.yml`, `blog/compose.prod.yaml`, `blog/lib/google_json_formatter.rb`, `blog/lib/nanobanana.rb`, the `IapAuthenticatable` concern, and `iac/`.
+- Models, controllers, views and jobs must not call cloud SDKs directly; they go through a seam.
+
 
