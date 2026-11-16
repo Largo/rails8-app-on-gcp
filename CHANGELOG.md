@@ -2,6 +2,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.10] - 2026-11-16
+### Changed
+- 📜 **Constitution v1.5.0 (`docs/CONSTITUTION.md`)**:
+  - Added §11 *Zero Gemini API Keys* (drafted as v1.4.0, never published on its own). Its local-development wording now separates Rails on the host from the Docker Compose stack, where containers receive no host credentials and AI features return the bundled mock asset.
+  - Added §12 *Harness-Agnostic Agent Instructions*: `AGENTS.md` is canonical, `GEMINI.md` and `CLAUDE.md` must be symlinks to it.
+  - Added §13 *Provider-Specific Code Lives at Named Seams*.
+  - Removed the reference to `workshop/UNTOUCHABLE-CONSTITUTION.md`, a file deleted in September 2026 (commit `5894722`).
+  - Governance text only. Application code, `CLAUDE.md` and the workshop do not yet comply with §11 to §13; that work follows in separate pull requests.
+
 ## [0.3.9] - 2026-10-27
 ### Fixed
 - 🛡️ **IAP Mock Identity Leak in Production (`blog/compose.prod.yaml`)**:
