@@ -11,7 +11,7 @@ require "yaml"
 require "digest"
 require_relative "../bin/ensure_workshop_credentials"
 
-# Comprehensive Stress-Test & Automated Friction-Log Simulation Suite (b/558209863)
+# Comprehensive Stress-Test & Automated Friction-Log Simulation Suite
 #
 # Runs two full automated Friction-Log simulations:
 # 1. Automated Friction Log #1 (Clean-Room Student Journey Steps 0 -> 8):
@@ -20,8 +20,8 @@ require_relative "../bin/ensure_workshop_credentials"
 #    Step 3 Time-Machine Stage 1 -> Step 4 Time-Machine Stage 2 -> Step 5 Cloud SQL/Secrets ->
 #    Step 6 Gold Standard restore + 3-tier sidecars -> Step 7 Vertex AI ADC -> Step 8 Quests).
 # 2. Automated Friction Log #2 (Adversarial / Chaos Student & 4-Surface Sync Audit):
-#    Stress-tests every historical footgun from FL001..FL008, the October friction-log
-#    review, the raw .md endpoints, and bash -n syntax across all 39+
+#    Stress-tests every historical footgun from FL001..FL008, Daniel Strebel's friction log,
+#    Guillaume Laforge's raw .md endpoints, and bash -n syntax across all 39+
 #    code blocks in CODELAB.md and DevSite index.lab.md.
 class StressAndAutomatedFrictionLogTest < Minitest::Test
   REPO_ROOT = File.expand_path("..", __dir__)

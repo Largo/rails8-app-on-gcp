@@ -173,7 +173,7 @@ portal_template_string = server_code.split("@@portal\n").last.split("@@").first
   puts "   📄 Rendered Landing Portal (#{target[:lang].upcase}) -> workshop/build/#{target[:filename]}"
 end
 
-# Copy raw Markdown files & generate llms.txt for AI Agents / LLMs (.md switcher)
+# Copy raw Markdown files & generate llms.txt for AI Agents / LLMs (Guillaume Laforge's .md switcher idea)
 codelab_md_src = File.join(workshop_dir, 'CODELAB.md')
 if File.exist?(codelab_md_src)
   %w[CODELAB.md codelab.md workshop/CODELAB.md codelab/CODELAB.md].each do |rel_dest|

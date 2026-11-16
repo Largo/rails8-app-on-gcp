@@ -13,7 +13,7 @@ The current version in [`workshop/CODELAB_VERSION`](./CODELAB_VERSION) is embedd
 - **Step 0 (Constitution §12)**: Any AI coding harness works. `CLAUDE.md` and `GEMINI.md` are symlinks to `AGENTS.md`, and the repo's skills are linked under `.claude/skills` and `.agents/skills`. Antigravity with a Gmail account stays the zero-cost default.
 - **Step 2 and Step 7 (Constitution §11)**: The codelab now says that the local Docker Compose stack holds no Google credentials, so a new post gets the bundled placeholder cover there; the AI-generated poster appears on Cloud Run in Step 7. Step 7 no longer claims that local development authenticates to Vertex AI out of the box.
 
-## [2.3.0] - 2026-10-08 (Friction-Log Review & Agentic `.md` Switcher)
+## [2.3.0] - 2026-10-08 (Daniel Strebel's Friction Log & Guillaume Laforge's Agentic `.md` Switcher)
 
 - **Constitution §11 & Step 6 / Step 7 (`P0-1` — Zero `GEMINI_API_KEY`)**:
   - Abolished `GEMINI_API_KEY` across `workshop/CODELAB.md`, `workshop/SKELETON.md`, `blog/compose.prod.yaml`, and `blog/lib/nanobanana.rb`. All GenAI workloads authenticate exclusively via keyless Vertex AI Application Default Credentials (`GOOGLE_CLOUD_PROJECT` + `roles/aiplatform.user`).
@@ -28,7 +28,7 @@ The current version in [`workshop/CODELAB_VERSION`](./CODELAB_VERSION) is embedd
   - Removed distracting `workshop-fun-secret` playground snippet, explained `RAILS_MASTER_KEY` cryptographic pairing, and bound `--set-secrets="RAILS_MASTER_KEY=rails-master-key:latest"` in Step 6's `gcloud run services update blog`.
 - **Step 7, Step 8 & Conclusion (`REQ-06`, `REQ-07`, `REQ-08`, `P0-2`)**:
   - Added explicit `roles/aiplatform.user` IAM binding check in Step 7, removed raw `TODO(riccardo)` placeholders, documented the `IAP_MOCK_EMAIL` fake-login warning banner in Step 8, and added surgical CLI + Terraform teardown commands in `Conclusion & Clean Up`.
-- **Visualizer & Static Build (`REQ-09` — `.md` Switcher & Agentic A11y)**:
+- **Visualizer & Static Build (`REQ-09` — Guillaume Laforge's `.md` Switcher & Agentic A11y)**:
   - Added `📋 Copy Step .md`, `📄 View .md`, and `🤖 Full .md` buttons, `/codelab.md` and `/llms.txt` endpoints, `<link rel="alternate" type="text/markdown">`, and `<aside role="note" aria-label="AI Agent Instructions">`.
 
 ---

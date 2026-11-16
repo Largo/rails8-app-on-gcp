@@ -263,7 +263,7 @@ class CodelabServer < Sinatra::Base
     erb :index
   end
 
-  # Raw Markdown & Agentic Discovery Endpoints (.md switcher & Agent A11y)
+  # Raw Markdown & Agentic Discovery Endpoints (Guillaume Laforge's .md switcher idea & Agent A11y)
   ['/codelab.md', '/workshop.md', '/CODELAB.md', '/workshop/CODELAB.md', '/codelab/CODELAB.md'].each do |md_route|
     get md_route do
       content_type 'text/markdown; charset=utf-8'

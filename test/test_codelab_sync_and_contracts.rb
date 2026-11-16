@@ -290,7 +290,7 @@ class CodelabSyncAndContractsTest < Minitest::Test
   def test_no_internal_google_paths_exfiltrated
     forbidden_prefix = ["/google", "src/"].join("/")
     files = `git -C #{REPO_ROOT} ls-files`.lines.map(&:strip)
-    offending = files.reject { |f| %w[AGENTS.md GEMINI.md test/test_codelab_sync_and_contracts.rb].include?(f) }.select do |rel|
+    offending = files.reject { |f| %w[AGENTS.md GEMINI.md CLAUDE.md test/test_codelab_sync_and_contracts.rb].include?(f) }.select do |rel|
       full = File.join(REPO_ROOT, rel)
       File.file?(full) && File.read(full, encoding: "BINARY").include?(forbidden_prefix)
     end

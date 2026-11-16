@@ -14,7 +14,7 @@ All notable changes to this project will be documented in this file.
 - 📜 **Compliance with Constitution §11, Zero Gemini API Keys (`AGENTS.md`, `blog/`, `workshop/`)**:
   - Removed static `GEMINI_API_KEY` tokens across application code (`blog/`), Docker Compose configurations (`compose.yaml`, `compose.prod.yaml`), environment templates (`.env.dist`, `.env.example`), and workshop instructions (`workshop/CODELAB.md`, `workshop/SKELETON.md`).
   - Added anti-legacy diagnostic enforcement in `bin/workshop_diagnostics.rb` (`just workshop-test`) and automated contract tests in `test/test_codelab_sync_and_contracts.rb` and `test/test_docker_compose_contracts.rb`.
-- 🤖 **Agent-Friendly Codelab `.md` Switcher & Agentic Accessibility (`REQ-09`, `workshop/visualizer/server.rb`, `workshop/visualizer/build_ghpages.rb`)**:
+- 🤖 **Agent-Friendly Codelab `.md` Switcher & Agentic Accessibility, an idea from Guillaume Laforge (`REQ-09`, `workshop/visualizer/server.rb`, `workshop/visualizer/build_ghpages.rb`)**:
   - Added top-header **`📋 Copy Step .md`** (copies the active step's raw Markdown to clipboard for pasting into Claude/Gemini/Antigravity), **`📄 View .md`** (live toggle between rendered HTML and raw Markdown `<pre>` view), and **`🤖 Full .md`** (`CODELAB.md` / `/codelab.md`).
   - Added `/codelab.md`, `/constitution.md`, `/skeleton.md`, and `/llms.txt` endpoints to `server.rb` and static artifacts to `workshop/build/`.
   - Added `<link rel="alternate" type="text/markdown">`, `<meta name="ai-agent-instructions">`, semantic `<aside role="note" aria-label="AI Agent Instructions">`, and per-step `<script type="text/markdown" id="raw-md-step-N">` blocks so browser-based AI agents never get trapped by `display: none` pagination.
@@ -35,7 +35,7 @@ All notable changes to this project will be documented in this file.
 - 🔴 **Fixed Fake Production IAP Auto-Login & Added `IAP_MOCK_EMAIL` Warning Banner (`P0-2`, `REQ-10`, `blog/compose.prod.yaml`, `blog/app/controllers/concerns/iap_authenticatable.rb`)**:
   - Removed the `IAP_MOCK_EMAIL` entry from `blog/compose.prod.yaml` altogether (0.3.9 had already dropped its hardcoded `ricc@google.com` default), so production never reads a mock identity.
   - When `ENV["IAP_MOCK_EMAIL"]` is used in local dev/test, `IapAuthenticatable` now displays an explicit warning banner (`⚠️ This is a fake IAP login based on ENV[IAP_MOCK_EMAIL] — do NOT use in prod!!!`).
-- 🛠️ **Friction-Log Review Codelab Remediations (`REQ-01`..`REQ-10`, `workshop/CODELAB.md`, `cloudbuild.yaml`)**:
+- 🛠️ **Codelab Remediations from Daniel Strebel's Friction Log (`REQ-01`..`REQ-10`, `workshop/CODELAB.md`, `cloudbuild.yaml`)**:
   - **`REQ-01`**: Added prominent warning against running interactive `gcloud init` inside Cloud Shell or pre-provisioned workshop VMs.
   - **`REQ-02`**: Documented `apt-get` native C/YAML build headers (`libyaml-dev`, `libffi-dev`, `libssl-dev`) before `rbenv install 3.4.5` and highlighted Docker Compose / DevContainers fast-track.
   - **`REQ-03`**: Documented `RAILS_MASTER_KEY` cryptographic pairing and added `--set-secrets="RAILS_MASTER_KEY=rails-master-key:latest"` to Step 6 `gcloud run services update blog`; removed distracting `workshop-fun-secret` block.
