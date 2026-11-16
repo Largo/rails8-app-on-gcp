@@ -164,19 +164,10 @@ class StatusesController < ApplicationController
   end
 
   def detect_ai_status
-    has_api_key = Nanobanana.gemini_api_key.present?
     project_id = Nanobanana.project_id
     has_adc = !Nanobanana.credentials.nil?
 
-    if has_api_key
-      {
-        mode: :gemini_api_key,
-        badge: "🍌 Google AI Studio (API Key)",
-        color: "#10b981",
-        active: true,
-        details: "Direct AI Studio API key configured (#{Nanobanana::MODEL})"
-      }
-    elsif project_id.present? && has_adc
+    if project_id.present? && has_adc
       {
         mode: :vertex_ai,
         badge: "🍌 Vertex AI (Enterprise ADC)",
@@ -190,7 +181,7 @@ class StatusesController < ApplicationController
         badge: "🎭 Fake Cover Fallback",
         color: "#ef4444",
         active: false,
-        details: "Neither GEMINI_API_KEY nor Vertex AI ADC available. Using bundled 1960s mock poster."
+        details: "Vertex AI Application Default Credentials (`GOOGLE_CLOUD_PROJECT` + ADC) not available. Using bundled 1960s mock poster."
       }
     end
   end
@@ -309,7 +300,6 @@ class StatusesController < ApplicationController
       PORT
       ADMIN_EMAIL
       ADMIN_PASSWORD
-      GEMINI_API_KEY
       DATABASE_URL
       SOLID_QUEUE_IN_PUMA
       STEP_8_GHI

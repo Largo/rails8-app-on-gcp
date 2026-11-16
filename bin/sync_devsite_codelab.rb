@@ -43,13 +43,18 @@ body = body.gsub(%r{<details>\s*<summary>(.*?)</summary>(.*?)</details>}m) do
 end
 
 target_paths.uniq.each do |devsite_path|
-  FileUtils.mkdir_p(File.dirname(devsite_path))
-  frontmatter = ""
-  if File.exist?(devsite_path)
-    existing = File.read(devsite_path)
-    header_match = existing.match(/\A(.*?)(?=^# Rails 8 on Google Cloud)/m)
-    frontmatter = header_match ? header_match[1] : ""
+  begin
+    FileUtils.mkdir_p(File.dirname(devsite_path))
+    frontmatter = ""
+    if File.exist?(devsite_path)
+      existing = File.read(devsite_path)
+      header_match = existing.match(/\A(.*?)(?=^# Rails 8 on Google Cloud)/m)
+      frontmatter = header_match ? header_match[1] : ""
+    end
+    File.write(devsite_path, "#{frontmatter}#{body}")
+    puts "✅ Synchronized workshop/CODELAB.md (v#{File.read(File.join(REPO_ROOT, 'workshop/CODELAB_VERSION')).strip}) -> #{devsite_path}"
+  rescue Errno::EROFS, Errno::EACCES, Errno::ENOENT => e
+    raise if devsite_path == DEFAULT_BUILD_PATH
+    warn "⚠️  Skipped optional external DevSite mirror #{devsite_path} (#{e.class}: #{e.message})"
   end
-  File.write(devsite_path, "#{frontmatter}#{body}")
-  puts "✅ Synchronized workshop/CODELAB.md (v#{File.read(File.join(REPO_ROOT, 'workshop/CODELAB_VERSION')).strip}) -> #{devsite_path}"
 end

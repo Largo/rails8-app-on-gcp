@@ -19,7 +19,8 @@ if [ -f "$KEY_PATH" ]; then
 fi
 
 echo "Ensure we are using the correct identity..."
-gcloud config set account palladiusbonton@gmail.com
+ACCOUNT=$(grep '^GOOGLE_CLOUD_ACCOUNT=' ../.env 2>/dev/null | cut -d '"' -f 2)
+gcloud config set account "${ACCOUNT:-student@example.com}"
 
 echo "Creating Service Account '$SA_NAME' in project '$PROJECT_ID'..."
 gcloud iam service-accounts create "$SA_NAME" \

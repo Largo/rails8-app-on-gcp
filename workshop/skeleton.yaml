@@ -16,7 +16,7 @@ steps:
       - "Git 2.30+ for cloning and branching repository"
       - "just task runner installed and able to parse the justfile (every workshop command is a just recipe)"
       - "Installed CLIs: just, git, gcloud, terraform, docker, ruby 3.4.5 (exact, pinned by blog/.ruby-version), rails 8"
-      - "Google Antigravity 2.0 environment"
+      - "Google Antigravity App environment"
     postrequisites:
       - "Authenticated gcloud and Application Default Credentials (ADC)"
       - "Verified active billing account preventing mid-workshop quota failures"
@@ -99,12 +99,12 @@ steps:
       - id: "step-2-shell-rails-test"
         type: "shell"
         description: "Verify local Rails test suite passes"
-        command: "cd blog && bin/rails test"
+        command: "cd blog && RBENV_VERSION=3.4.5 bin/rails test"
         expect_exit: 0
       - id: "step-2-shell-workshop-alerts"
         type: "shell"
         description: "Verify integration test suite for workshop header alerts (SQL, Storage, AI) passes"
-        command: "cd blog && bin/rails test test/integration/workshop_alerts_test.rb"
+        command: "cd blog && RBENV_VERSION=3.4.5 bin/rails test test/integration/workshop_alerts_test.rb"
         expect_exit: 0
       - id: "step-2-ruby-user-seeded"
         type: "ruby"
@@ -264,6 +264,7 @@ steps:
           cmd = ["bin/rails", "runner", runner_code]
           env = {
             "RBENV_VERSION" => "3.4.5",
+            "RAILS_MASTER_KEY" => nil,
             "SECRET_KEY_BASE_DUMMY" => "1",
             "RAILS_ENV" => "production",
             "DATABASE_URL" => "postgres://user:pass@localhost:5432/app?host=/cloudsql/p:r:i",
@@ -282,7 +283,7 @@ steps:
       just workshop-restore-gold
       export RUN_SA="rails-cloudrun-sa@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com"
       gcloud run compose up compose.prod.yaml --region=$GOOGLE_CLOUD_REGION
-      gcloud run services update blog --region=$GOOGLE_CLOUD_REGION --service-account=$RUN_SA
+      gcloud run services update blog --region=$GOOGLE_CLOUD_REGION --service-account=$RUN_SA --set-secrets="RAILS_MASTER_KEY=rails-master-key:latest"
     prerequisites:
       - "Step 5 completed"
       - "Cloud SQL and Secret Manager configured"
@@ -331,14 +332,14 @@ steps:
           cmd = ["bin/rails", "runner", runner_code]
           env = {
             "RBENV_VERSION" => "3.4.5",
+            "RAILS_MASTER_KEY" => nil,
             "SECRET_KEY_BASE_DUMMY" => "1",
             "K_SERVICE" => "blog",
             "RAILS_ENV" => "production",
             "DATABASE_URL" => "postgres://user:pass@localhost:5432/app?host=/cloudsql/p:r:i",
             "ACTIVE_STORAGE_SERVICE" => "google_prod",
             "GOOGLE_APPLICATION_CREDENTIALS" => "/dev/null",
-            "GOOGLE_CLOUD_PROJECT" => "",
-            "GEMINI_API_KEY" => ""
+            "GOOGLE_CLOUD_PROJECT" => ""
           }
           out, err, st = Open3.capture3(env, *cmd, chdir: File.expand_path('blog', Dir.pwd))
           raise "Runner failed: #{err}" unless st.success?
@@ -354,7 +355,7 @@ steps:
       bin/rails console # ActiveStorage blob reconnection
     prerequisites:
       - "Step 6 completed"
-      - "GEMINI_API_KEY or Vertex AI IAM permissions active"
+      - "Vertex AI IAM permissions (roles/aiplatform.user) and ADC active"
     postrequisites:
       - "Asynchronous GenAI image generation attached to blog posts"
       - "Bilingual TTS audio podcast generation functional"
@@ -387,18 +388,19 @@ steps:
         code: |
           hub = File.read('blog/app/views/workshop/alerts/_hub.html.erb')
           raise 'Alerts hub missing' unless hub.include?('workshop-alerts-hub')
-          system('cd blog && bin/rails test test/integration/stuck_jobs_warning_test.rb test/integration/workshop_alerts_test.rb > /dev/null') || raise('Alert integration tests failed')
+          system('cd blog && RBENV_VERSION=3.4.5 bin/rails test test/integration/stuck_jobs_warning_test.rb test/integration/workshop_alerts_test.rb > /dev/null') || raise('Alert integration tests failed')
       - id: "step-7-llm-clean-ui-no-warnings"
         type: "llm"
         description: "Verify rendered UI and screenshots at Step 7 have zero warning banners, zero pending background jobs alerts, and no ephemeral storage badges"
         prompt: "Inspect the rendered post view and screenshots for Step 7. Verify that the UI exhibits zero yellow warning alert banners (such as stuck background jobs or missing worker warnings) and no ephemeral disk badges. The interface must be completely clean. Return JSON with {return: 0 or 1, comment: string, error_message: string}."
       - id: "step-7-ruby-status-json-step"
         type: "ruby"
-        description: "Verify status telemetry infers Step 7 when Cloud Run has Cloud SQL, GCS, and active AI credentials"
+        description: "Verify status telemetry infers Step 7 when Cloud Run has Cloud SQL, GCS, and active Vertex AI ADC credentials"
         code: |
           require 'open3'
           require 'json'
           runner_code = <<~RUBY
+            Nanobanana.define_singleton_method(:credentials) { Object.new }
             c = StatusesController.new
             c.instance_variable_set(:@db_status, c.send(:detect_db_status))
             c.instance_variable_set(:@storage_status, c.send(:detect_storage_status))
@@ -407,12 +409,14 @@ steps:
           RUBY
           cmd = ["bin/rails", "runner", runner_code]
           env = {
+            "RBENV_VERSION" => "3.4.5",
+            "RAILS_MASTER_KEY" => nil,
             "SECRET_KEY_BASE_DUMMY" => "1",
             "K_SERVICE" => "blog",
             "RAILS_ENV" => "production",
             "DATABASE_URL" => "postgres://user:pass@localhost:5432/app?host=/cloudsql/p:r:i",
             "ACTIVE_STORAGE_SERVICE" => "google_prod",
-            "GEMINI_API_KEY" => "dummy-gemini-key"
+            "GOOGLE_CLOUD_PROJECT" => "demo-project"
           }
           out, err, st = Open3.capture3(env, *cmd, chdir: File.expand_path('blog', Dir.pwd))
           raise "Runner failed: #{err}" unless st.success?
@@ -445,7 +449,7 @@ steps:
             end
           RUBY
           cmd = ["bin/rails", "runner", runner_code]
-          out, err, st = Open3.capture3(*cmd, chdir: File.expand_path('blog', Dir.pwd))
+          out, err, st = Open3.capture3({ "RBENV_VERSION" => "3.4.5" }, *cmd, chdir: File.expand_path('blog', Dir.pwd))
           raise "Broken images found: #{out.strip}" unless st.success?
   - id: "step-8"
     number: 8

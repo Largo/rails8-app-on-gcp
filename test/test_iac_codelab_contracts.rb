@@ -102,7 +102,7 @@ class IacCodelabContractsTest < Minitest::Test
 
   # Finding #10b (FL_E001): skeleton.yaml Ruby runner evaluations must pin RBENV_VERSION=3.4.5
   def test_skeleton_yaml_rails_runner_evals_pin_rbenv_version_3_4_5
-    [5, 6].each do |step_num|
+    [5, 6, 7].each do |step_num|
       step = @skeleton["steps"].find { |s| s["number"] == step_num }
       eval_item = (step["evals"] || []).find { |e| e["id"] == "step-#{step_num}-ruby-status-json-step" }
       refute_nil eval_item, "Missing step-#{step_num}-ruby-status-json-step in skeleton.yaml"

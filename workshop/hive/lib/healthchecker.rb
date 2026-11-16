@@ -247,25 +247,58 @@ module WorkshopHive
       end
     end
 
+    @crunch_runs_count = 0
+    @last_crunched_at = nil
+
     def self.cached_results
       @cache_mutex.synchronize { @results_cache.dup }
     end
 
-    # Background continuous poller (ogni 5 secondi per background worker)
-    def self.start_background_poller!(urls_proc, interval: 5)
+    def self.cruncher_stats
+      @cache_mutex.synchronize do
+        {
+          poller_active: @poller_thread&.alive? || false,
+          crunch_runs_count: @crunch_runs_count || 0,
+          last_crunched_at: @last_crunched_at,
+          cached_urls_count: @results_cache.size
+        }
+      end
+    end
+
+    def self.record_crunch_run!
+      @cache_mutex.synchronize do
+        @crunch_runs_count = (@crunch_runs_count || 0) + 1
+        @last_crunched_at = Time.now.utc.iso8601
+      end
+    end
+
+    # Background continuous poller (default ogni 15 secondi per background worker)
+    def self.start_background_poller!(urls_proc, interval: 15)
       @poller_mutex.synchronize do
-        return if @poller_thread&.alive?
+        return @poller_thread if @poller_thread&.alive?
 
         @poller_thread = Thread.new do
           loop do
             begin
               urls = urls_proc.call
-              check_all(urls) if urls && !urls.empty?
+              if urls && !urls.empty?
+                check_all(urls)
+                record_crunch_run!
+              end
             rescue StandardError => e
               warn "[Healthchecker Background Poller] #{e.message}"
             end
             sleep interval
           end
+        end
+      end
+    end
+
+    def self.stop_background_poller!
+      @poller_mutex.synchronize do
+        if @poller_thread&.alive?
+          @poller_thread.kill
+          @poller_thread = nil
         end
       end
     end

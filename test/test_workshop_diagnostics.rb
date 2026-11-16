@@ -6,10 +6,37 @@ require "tmpdir"
 class WorkshopDiagnosticsTest < Minitest::Test
   SCRIPT_PATH = File.expand_path("../bin/workshop_diagnostics.rb", __dir__)
 
+  def with_fast_fake_gcloud(dir, active_account: "student@gmail.com")
+    bin_dir = File.join(dir, "fakebin")
+    FileUtils.mkdir_p(bin_dir)
+    fake_gcloud = File.join(bin_dir, "gcloud")
+    File.write(fake_gcloud, <<~SH)
+      #!/bin/sh
+      case "$*" in
+        "auth list --filter=status:ACTIVE"*) echo "#{active_account}" ;;
+        "auth list"*) echo "#{active_account}" ;;
+        "beta billing projects describe"*) echo True ;;
+        "auth application-default print-access-token"*) echo token ;;
+        "projects describe"*) echo 123456789 ;;
+        "projects get-iam-policy"*) echo "roles/editor" ;;
+        "storage buckets describe"*) exit 1 ;;
+        "storage ls"*) exit 1 ;;
+        *) ;;
+      esac
+    SH
+    File.chmod(0o755, fake_gcloud)
+    fake_node = File.join(bin_dir, "node")
+    File.write(fake_node, "#!/bin/sh\nexit 0\n")
+    File.chmod(0o755, fake_node)
+    { "PATH" => "#{bin_dir}:#{ENV['PATH']}" }
+  end
+
   def test_fails_when_gcp_account_and_gcloud_account_missing
     Dir.mktmpdir do |dir|
-      env = { "CLOUDSDK_CORE_ACCOUNT" => "", "GOOGLE_CLOUD_ACCOUNT" => "", "ADMIN_EMAIL" => "" }
-      stdout, _stderr, status = Open3.capture3(env, "ruby", SCRIPT_PATH, chdir: dir)
+      env = with_fast_fake_gcloud(dir, active_account: "").merge(
+        "CLOUDSDK_CORE_ACCOUNT" => "", "GOOGLE_CLOUD_ACCOUNT" => "", "ADMIN_EMAIL" => ""
+      )
+      stdout, _stderr, _status = Open3.capture3(env, "ruby", SCRIPT_PATH, chdir: dir)
       assert_includes stdout, "GOOGLE_CLOUD_ACCOUNT"
     end
   end
@@ -17,7 +44,7 @@ class WorkshopDiagnosticsTest < Minitest::Test
   def test_warns_when_google_cloud_account_is_not_google_or_gmail
     Dir.mktmpdir do |dir|
       File.write(File.join(dir, ".env"), "GOOGLE_CLOUD_ACCOUNT=student@yahoo.com\nGOOGLE_CLOUD_PROJECT=dummy\n")
-      stdout, _stderr, _status = Open3.capture3("ruby", SCRIPT_PATH, chdir: dir)
+      stdout, _stderr, _status = Open3.capture3(with_fast_fake_gcloud(dir), "ruby", SCRIPT_PATH, chdir: dir)
       assert_includes stdout, "GOOGLE_CLOUD_ACCOUNT (student@yahoo.com) is not a @gmail.com or @google.com address"
       assert_includes stdout, "Billable resources"
       assert_includes stdout, "terraform apply"
@@ -26,16 +53,16 @@ class WorkshopDiagnosticsTest < Minitest::Test
 
   def test_warns_when_admin_email_differs_from_google_cloud_account
     Dir.mktmpdir do |dir|
-      File.write(File.join(dir, ".env"), "GOOGLE_CLOUD_ACCOUNT=ricc@google.com\nADMIN_EMAIL=custom@gmail.com\nGOOGLE_CLOUD_PROJECT=dummy\n")
-      stdout, _stderr, _status = Open3.capture3("ruby", SCRIPT_PATH, chdir: dir)
-      assert_includes stdout, "ADMIN_EMAIL (custom@gmail.com) and GOOGLE_CLOUD_ACCOUNT (ricc@google.com) differ!"
+      File.write(File.join(dir, ".env"), "GOOGLE_CLOUD_ACCOUNT=student@example.com\nADMIN_EMAIL=custom@example.com\nGOOGLE_CLOUD_PROJECT=dummy\n")
+      stdout, _stderr, _status = Open3.capture3(with_fast_fake_gcloud(dir), "ruby", SCRIPT_PATH, chdir: dir)
+      assert_includes stdout, "ADMIN_EMAIL (custom@example.com) and GOOGLE_CLOUD_ACCOUNT (student@example.com) differ!"
     end
   end
 
   def test_fails_when_deprecated_project_id_found_in_env
     Dir.mktmpdir do |dir|
-      File.write(File.join(dir, ".env"), "GOOGLE_CLOUD_ACCOUNT=ricc@google.com\nPROJECT_ID=dummy-legacy-project\n")
-      stdout, _stderr, status = Open3.capture3("ruby", SCRIPT_PATH, chdir: dir)
+      File.write(File.join(dir, ".env"), "GOOGLE_CLOUD_ACCOUNT=student@example.com\nPROJECT_ID=dummy-legacy-project\n")
+      stdout, _stderr, status = Open3.capture3(with_fast_fake_gcloud(dir), "ruby", SCRIPT_PATH, chdir: dir)
       assert_equal 1, status.exitstatus
       assert_includes stdout, "Found deprecated variable 'PROJECT_ID'"
       assert_includes stdout, "GOOGLE_CLOUD_PROJECT"
@@ -44,8 +71,8 @@ class WorkshopDiagnosticsTest < Minitest::Test
 
   def test_fails_when_deprecated_gcloud_user_found_in_env
     Dir.mktmpdir do |dir|
-      File.write(File.join(dir, ".env"), "GOOGLE_CLOUD_ACCOUNT=ricc@google.com\nGCLOUD_USER=ricc@google.com\nGOOGLE_CLOUD_PROJECT=dummy\n")
-      stdout, _stderr, status = Open3.capture3("ruby", SCRIPT_PATH, chdir: dir)
+      File.write(File.join(dir, ".env"), "GOOGLE_CLOUD_ACCOUNT=student@example.com\nGCLOUD_USER=student@example.com\nGOOGLE_CLOUD_PROJECT=dummy\n")
+      stdout, _stderr, status = Open3.capture3(with_fast_fake_gcloud(dir), "ruby", SCRIPT_PATH, chdir: dir)
       assert_equal 1, status.exitstatus
       assert_includes stdout, "Found deprecated variable 'GCLOUD_USER'"
       assert_includes stdout, "GOOGLE_CLOUD_ACCOUNT"
@@ -54,8 +81,8 @@ class WorkshopDiagnosticsTest < Minitest::Test
 
   def test_fails_when_banned_gcp_project_id_found_in_env
     Dir.mktmpdir do |dir|
-      File.write(File.join(dir, ".env"), "GOOGLE_CLOUD_ACCOUNT=ricc@google.com\nGCP_PROJECT_ID=dummy\n")
-      stdout, _stderr, status = Open3.capture3("ruby", SCRIPT_PATH, chdir: dir)
+      File.write(File.join(dir, ".env"), "GOOGLE_CLOUD_ACCOUNT=student@example.com\nGCP_PROJECT_ID=dummy\n")
+      stdout, _stderr, status = Open3.capture3(with_fast_fake_gcloud(dir), "ruby", SCRIPT_PATH, chdir: dir)
       assert_equal 1, status.exitstatus
       assert_includes stdout, "Found deprecated variable 'GCP_PROJECT_ID'"
       assert_includes stdout, "GOOGLE_CLOUD_PROJECT"
@@ -64,8 +91,8 @@ class WorkshopDiagnosticsTest < Minitest::Test
 
   def test_fails_when_banned_gcp_region_found_in_env
     Dir.mktmpdir do |dir|
-      File.write(File.join(dir, ".env"), "GOOGLE_CLOUD_ACCOUNT=ricc@google.com\nGOOGLE_CLOUD_PROJECT=dummy\nGCP_REGION=us-central1\n")
-      stdout, _stderr, status = Open3.capture3("ruby", SCRIPT_PATH, chdir: dir)
+      File.write(File.join(dir, ".env"), "GOOGLE_CLOUD_ACCOUNT=student@example.com\nGOOGLE_CLOUD_PROJECT=dummy\nGCP_REGION=us-central1\n")
+      stdout, _stderr, status = Open3.capture3(with_fast_fake_gcloud(dir), "ruby", SCRIPT_PATH, chdir: dir)
       assert_equal 1, status.exitstatus
       assert_includes stdout, "Found deprecated variable 'GCP_REGION'"
       assert_includes stdout, "GOOGLE_CLOUD_REGION"
@@ -74,11 +101,21 @@ class WorkshopDiagnosticsTest < Minitest::Test
 
   def test_fails_when_banned_gcp_email_found_in_env
     Dir.mktmpdir do |dir|
-      File.write(File.join(dir, ".env"), "GCP_EMAIL=ricc@google.com\nGOOGLE_CLOUD_PROJECT=dummy\n")
-      stdout, _stderr, status = Open3.capture3("ruby", SCRIPT_PATH, chdir: dir)
+      File.write(File.join(dir, ".env"), "GCP_EMAIL=student@example.com\nGOOGLE_CLOUD_PROJECT=dummy\n")
+      stdout, _stderr, status = Open3.capture3(with_fast_fake_gcloud(dir), "ruby", SCRIPT_PATH, chdir: dir)
       assert_equal 1, status.exitstatus
       assert_includes stdout, "Found deprecated variable 'GCP_EMAIL'"
       assert_includes stdout, "GOOGLE_CLOUD_ACCOUNT"
+    end
+  end
+
+  def test_fails_when_banned_gemini_api_key_found_in_env
+    Dir.mktmpdir do |dir|
+      File.write(File.join(dir, ".env"), "GOOGLE_CLOUD_ACCOUNT=student@example.com\nGOOGLE_CLOUD_PROJECT=dummy\nGEMINI_API_KEY=AIzaDummy\n")
+      stdout, _stderr, status = Open3.capture3(with_fast_fake_gcloud(dir), "ruby", SCRIPT_PATH, chdir: dir)
+      assert_equal 1, status.exitstatus
+      assert_includes stdout, "Found banned variable 'GEMINI_API_KEY'"
+      assert_includes stdout, "Vertex AI ADC"
     end
   end
 

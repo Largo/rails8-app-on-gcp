@@ -70,6 +70,7 @@ Riccardo and Emiliano collaborate on this project, which is bifidus (two-fold):
 2. **Docker Compose in Cloud Run:** Demonstrate `docker-compose` compatibility. Rubyists often prefer simplicity (Kamal, SQLite, baremetal); we meet them where they are and make GCP feel just as intuitive.
 3. **DB Queues:** Skip external Kafka/PubSub overhead for application queues in favor of Rails 8 Solid Queue backed by the database.
 4. **Terraform with Fabric FAST:** Use Fabric FAST for GCP Terraform. See `iac/README.md` and `iac/AGENTS.md` for specific infrastructure dispositions.
+5. **Zero Gemini API Keys (100% Vertex AI with ADC):** Application code (`blog/`), Docker Compose files, `.env*` templates, and workshop steps MUST NEVER use `GEMINI_API_KEY` or consumer Google AI Studio endpoints. All GenAI pipelines (`Nanobanana`, audio synthesis) authenticate exclusively via Vertex AI using keyless Application Default Credentials (`GOOGLE_CLOUD_PROJECT` + ADC), falling back gracefully to local mock assets offline.
 
 ---
 

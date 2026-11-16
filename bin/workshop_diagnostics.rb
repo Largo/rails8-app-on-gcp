@@ -61,6 +61,14 @@ if File.exist?(env_file)
     puts "   👉 Rinomina '#{bad_email_key}' in 'GOOGLE_CLOUD_ACCOUNT' nel tuo file .env!"
     errors_count += 1
   end
+
+  # Strict Constitutional Check (§11): GEMINI_API_KEY is forbidden; use Vertex AI ADC
+  if env_vars.key?("GEMINI_API_KEY")
+    puts "❌ [ERROR] Found banned variable 'GEMINI_API_KEY' in #{env_file}!".red
+    puts "   👉 Per Constitution §11, static Gemini API keys are strictly prohibited."
+    puts "   👉 Remove 'GEMINI_API_KEY' from .env and authenticate via Vertex AI ADC (`GOOGLE_CLOUD_PROJECT`)."
+    errors_count += 1
+  end
 else
   puts "⚠️  [ENV] No .env file found at repository root!".yellow
   puts "   👉 Please run: cp .env.dist .env && vim .env"
@@ -262,32 +270,40 @@ end
 puts "\n--- 🔑 3. Checking Rails Secrets & Keys ---".bold
 require_relative "ensure_workshop_credentials"
 begin
-  repo_root_dir = File.expand_path("..", __dir__)
-  cred_check = WorkshopCredentialsManager.check(repo_root: repo_root_dir)
-  if cred_check[:status] == :ok
-    puts "✅ config/master.key and config/credentials.yml.enc verified and cryptographically paired!".green
-  elsif cred_check[:is_sample_app_md5] || !File.exist?(File.join(repo_root_dir, "blog/config/credentials.yml.enc"))
-    creds_result = WorkshopCredentialsManager.ensure!(
-      repo_root: repo_root_dir,
-      sync_gcp: true
-    ) do |msg|
-      puts "   #{msg}".cyan
-    end
-    if [:ok, :regenerated, :restored_key_only].include?(creds_result[:status])
-      puts "✅ config/master.key and config/credentials.yml.enc bootstrapped and cryptographically paired!".green
-    end
-  else
-    # Custom credentials.yml.enc exists (Computer 2 scenario): try restoring key from GCP without overwriting credentials.yml.enc
-    gcp_key = WorkshopCredentialsManager.fetch_gcp_secret_key
-    if gcp_key && WorkshopCredentialsManager.can_decrypt_credentials?(gcp_key, File.join(repo_root_dir, "blog/config/credentials.yml.enc"))
-      WorkshopCredentialsManager.ensure!(repo_root: repo_root_dir, sync_gcp: true) do |msg|
+  canonical_root = File.expand_path("..", __dir__)
+  pwd_expanded = File.expand_path(Dir.pwd)
+  repo_root_dir = if pwd_expanded == canonical_root || pwd_expanded.start_with?("#{canonical_root}/")
+                    canonical_root
+                  else
+                    pwd_expanded
+                  end
+  if Dir.exist?(File.join(repo_root_dir, "blog", "config"))
+    cred_check = WorkshopCredentialsManager.check(repo_root: repo_root_dir)
+    if cred_check[:status] == :ok
+      puts "✅ config/master.key and config/credentials.yml.enc verified and cryptographically paired!".green
+    elsif cred_check[:is_sample_app_md5] || !File.exist?(File.join(repo_root_dir, "blog/config/credentials.yml.enc"))
+      creds_result = WorkshopCredentialsManager.ensure!(
+        repo_root: repo_root_dir,
+        sync_gcp: true
+      ) do |msg|
         puts "   #{msg}".cyan
       end
-      puts "✅ Restored config/master.key from GCP Secret Manager matching custom credentials.yml.enc!".green
+      if [:ok, :regenerated, :restored_key_only].include?(creds_result[:status])
+        puts "✅ config/master.key and config/credentials.yml.enc bootstrapped and cryptographically paired!".green
+      end
     else
-      puts "⚠️  [WARNING] Custom credentials.yml.enc detected but local config/master.key is missing or mismatched.".yellow
-      puts "   👉 Run `ruby bin/ensure_workshop_credentials.rb --sync-gcp` to restore or regenerate credentials."
-      warnings_count += 1
+      # Custom credentials.yml.enc exists (Computer 2 scenario): try restoring key from GCP without overwriting credentials.yml.enc
+      gcp_key = WorkshopCredentialsManager.fetch_gcp_secret_key
+      if gcp_key && WorkshopCredentialsManager.can_decrypt_credentials?(gcp_key, File.join(repo_root_dir, "blog/config/credentials.yml.enc"))
+        WorkshopCredentialsManager.ensure!(repo_root: repo_root_dir, sync_gcp: true) do |msg|
+          puts "   #{msg}".cyan
+        end
+        puts "✅ Restored config/master.key from GCP Secret Manager matching custom credentials.yml.enc!".green
+      else
+        puts "⚠️  [WARNING] Custom credentials.yml.enc detected but local config/master.key is missing or mismatched.".yellow
+        puts "   👉 Run `ruby bin/ensure_workshop_credentials.rb --sync-gcp` to restore or regenerate credentials."
+        warnings_count += 1
+      end
     end
   end
 rescue => e

@@ -149,7 +149,7 @@ style: |
   }
 ---
 
-# Da Zero al Cloud con Antigravity 2.0 🚀
+# Da Zero al Cloud con Antigravity App 🚀
 ### Workshop Hands-On: Rails 8 su Google Cloud & AI Pair Programming
 
 <a href="antigravity.en.html" title="English Version" style="position: absolute; top: 12px; right: 16px; font-size: 0.7em; text-decoration: none; opacity: 0.82;">🇬🇧</a>
@@ -173,13 +173,13 @@ style: |
 
 ---
 
-## Step 1: Scarica e Installa Google Antigravity 2.0 ⬇️
+## Step 1: Scarica e Installa Google Antigravity App ⬇️
 
 <div class="two-col" style="align-items: center; margin-top: 8px; gap: 22px;">
 <div style="flex: 0 0 38%; display: flex; flex-direction: column; gap: 12px;">
 <div>
 <a href="https://antigravity.google/download" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #1a73e8; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.92em;">
-🚀 Scarica Antigravity 2.0
+🚀 Scarica Antigravity App
 </a>
 </div>
 <p style="font-size: 0.82em; color: #3c4043; margin: 0;">
@@ -190,7 +190,7 @@ style: |
 </div>
 </div>
 <div style="flex: 1; text-align: center;">
-<img src="images/antigravity-download.png" style="max-height: 510px; width: 100%; object-fit: contain; border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,0.14); border: 1px solid #dadce0;" alt="Download Antigravity 2.0" />
+<img src="images/antigravity-download.png" style="max-height: 510px; width: 100%; object-fit: contain; border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,0.14); border: 1px solid #dadce0;" alt="Download Antigravity App" />
 </div>
 </div>
 
@@ -228,7 +228,7 @@ style: |
 
 ## Step 3: Fai Login con il tuo Account Gmail 🔐
 
-1. Apri **Google Antigravity 2.0** &nbsp;&middot;&nbsp; 2. Clicca **Sign in with Google** &nbsp;&middot;&nbsp; 3. Autorizza l'agente.
+1. Apri **Google Antigravity App** &nbsp;&middot;&nbsp; 2. Clicca **Sign in with Google** &nbsp;&middot;&nbsp; 3. Autorizza l'agente.
 
 <div style="text-align: center; margin: 6px 0;">
 <img src="images/antigravity-login.png" style="max-height: 475px; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.25); border: 1px solid #3c4043;" alt="Sign in with Google" />
@@ -445,7 +445,7 @@ Ho reclamato un coupon di GCP. Crea un progetto sotto la mia gmail, chiamalo con
 ---
 
 # Grazie! 🎉
-### Costruiamo insieme con Google Antigravity 2.0 & Rails 8 🚀
+### Costruiamo insieme con Google Antigravity App & Rails 8 🚀
 
 <div style="display: flex; gap: 28px; align-items: center; margin-top: 10px;">
 <div style="flex: 0 0 450px; text-align: center;">

@@ -3,6 +3,7 @@
 require "net/http"
 require "json"
 require "base64"
+require "pathname"
 
 # Nano Banana cover-image generator (GitHub issue #18).
 #
@@ -26,7 +27,11 @@ module Nanobanana
   OPEN_TIMEOUT = 5   # seconds
   READ_TIMEOUT = 90  # seconds — image generation is slow
 
-  IMAGES_DIR = Rails.root.join("app/assets/images")
+  IMAGES_DIR = if defined?(Rails) && Rails.respond_to?(:root) && Rails.root
+    Rails.root.join("app/assets/images")
+  else
+    Pathname.new(File.expand_path("../app/assets/images", __dir__))
+  end
   FAKE_COVER = IMAGES_DIR.join("nanobanana_fake_cover.png")
   STAMPS     = {
     local: IMAGES_DIR.join("nanobanana_stamp_local.png"),
@@ -79,27 +84,21 @@ module Nanobanana
     PROMPT
   end
 
-  def gemini_api_key
-    ENV["GEMINI_API_KEY"].presence
-  end
-
   def project_id
     ENV["GOOGLE_CLOUD_PROJECT"].presence
   end
 
-  # True when a Vertex AI call or Gemini API key call could plausibly succeed.
+  # True when a Vertex AI call via Application Default Credentials could plausibly succeed.
   def available?
-    gemini_api_key.present? || (project_id.present? && !credentials.nil?)
+    project_id.present? && !credentials.nil?
   end
 
-  # Always returns a Result. Gemini API Key or Vertex AI when possible, fake cover otherwise.
+  # Always returns a Result. Vertex AI via ADC when possible, fake cover otherwise.
   def generate_image(prompt)
-    if gemini_api_key.present?
-      generate_via_gemini_api(prompt)
-    elsif project_id.present?
+    if project_id.present?
       generate_via_vertex_ai(prompt)
     else
-      fake_cover("Neither GEMINI_API_KEY nor GOOGLE_CLOUD_PROJECT is set")
+      fake_cover("GOOGLE_CLOUD_PROJECT is not set")
     end
   end
 
@@ -133,27 +132,6 @@ module Nanobanana
   end
 
   # --- internals (still callable, module_function makes them stubbable in tests)
-
-  def generate_via_gemini_api(prompt)
-    uri = URI("https://generativelanguage.googleapis.com/v1beta/models/#{MODEL}:generateContent?key=#{gemini_api_key}")
-    response = post_generate_content(uri, request_body(prompt), nil)
-    unless response.is_a?(Net::HTTPSuccess)
-      return fake_cover("Gemini API answered HTTP #{response.code}: #{response.body.to_s.squish.truncate(200)}")
-    end
-
-    part = JSON.parse(response.body).dig("candidates", 0, "content", "parts")&.find { |p| p["inlineData"] }
-    return fake_cover("Gemini API returned no image part") unless part
-
-    Rails.logger.info "🍌 Nano Banana: cover generated via Google AI Studio (#{MODEL})"
-    Result.new(
-      data: Base64.decode64(part["inlineData"]["data"]),
-      content_type: part["inlineData"]["mimeType"].presence || "image/png",
-      source: :vertex
-    )
-  rescue Unavailable, Timeout::Error, SocketError, IOError, SystemCallError,
-         OpenSSL::SSL::SSLError, Net::ProtocolError, JSON::ParserError => e
-    fake_cover("#{e.class}: #{e.message.to_s.squish.truncate(200)}")
-  end
 
   def generate_via_vertex_ai(prompt)
     response = post_generate_content(endpoint_uri, request_body(prompt), access_token!)

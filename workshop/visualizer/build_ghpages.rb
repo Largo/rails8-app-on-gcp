@@ -86,6 +86,18 @@ def show_internal_docs?
   debug_mode?
 end
 
+def raw_doc_url(active_doc = @active_doc)
+  prefix = @current_base_prefix || ''
+  case active_doc.to_s
+  when 'constitution'
+    "#{prefix}constitution.md"
+  when 'skeleton'
+    "#{prefix}skeleton.md"
+  else
+    "#{prefix}CODELAB.md"
+  end
+end
+
 # Extract template from server.rb
 server_rb_path = File.join(script_dir, 'server.rb')
 server_code = File.read(server_rb_path)
@@ -108,6 +120,7 @@ docs_to_build.each do |doc|
   @active_doc = doc[:active]
   @codelab = parse_markdown(doc[:source])
   prefix = doc[:base_prefix] || ''
+  @current_base_prefix = prefix
   
   # For static pages, adapt the tab links to point to the static HTML files
   doc_template = template_string.dup
@@ -116,6 +129,8 @@ docs_to_build.each do |doc|
   doc_template.gsub!('href="/constitution"', "href=\"#{prefix}constitution.html\"")
   doc_template.gsub!('href="/skeleton"', "href=\"#{prefix}skeleton.html\"")
   doc_template.gsub!('href="/slides/"', "href=\"#{prefix}slides/index.html\"")
+  doc_template.gsub!('href="/llms.txt"', "href=\"#{prefix}llms.txt\"")
+  doc_template.gsub!('content="/llms.txt"', "content=\"#{prefix}llms.txt\"")
   doc_template.gsub!('href="/"', "href=\"#{prefix}index.html\"")
   # Hide Constitution & Skeleton from primary static doc tabs in codelab viewer
   if doc[:active] == 'codelab'
@@ -150,10 +165,56 @@ portal_template_string = server_code.split("@@portal\n").last.split("@@").first
   portal_html.gsub!('href="/slides/"', 'href="slides/index.html"')
   portal_html.gsub!('href="/constitution"', 'href="constitution.html"')
   portal_html.gsub!('href="/skeleton"', 'href="skeleton.html"')
+  portal_html.gsub!('href="/codelab.md"', 'href="CODELAB.md"')
+  portal_html.gsub!('href="/llms.txt"', 'href="llms.txt"')
   portal_html.gsub!('src="/assets/', 'src="assets/')
 
   File.write(File.join(build_dir, target[:filename]), portal_html)
   puts "   📄 Rendered Landing Portal (#{target[:lang].upcase}) -> workshop/build/#{target[:filename]}"
+end
+
+# Copy raw Markdown files & generate llms.txt for AI Agents / LLMs (.md switcher)
+codelab_md_src = File.join(workshop_dir, 'CODELAB.md')
+if File.exist?(codelab_md_src)
+  %w[CODELAB.md codelab.md workshop/CODELAB.md codelab/CODELAB.md].each do |rel_dest|
+    dest = File.join(build_dir, rel_dest)
+    FileUtils.mkdir_p(File.dirname(dest))
+    FileUtils.cp(codelab_md_src, dest)
+  end
+  puts "   🤖 Copied raw CODELAB.md -> workshop/build/{CODELAB.md,codelab.md,workshop/CODELAB.md}"
+
+  parsed_codelab = parse_markdown(codelab_md_src)
+  llms_txt = [
+    "# #{parsed_codelab[:title]}",
+    "",
+    "> Official AI Agent & LLM Entrypoint (llms.txt) for the Rails 8 on Google Cloud Workshop.",
+    "> AI Agents: Do NOT scrape the paginated HTML visualizer (where steps are hidden via display:none).",
+    "> Fetch the complete, unpaginated Markdown source directly from CODELAB.md.",
+    "",
+    "## Primary Markdown Sources",
+    "- [Full Workshop Codelab (Raw Markdown)](CODELAB.md): Complete step-by-step hands-on instructions (Steps 0 to 8).",
+    "- [Project Constitution (Raw Markdown)](CONSTITUTION.md) (also available at [constitution.md](constitution.md)): Immutable architectural rules and Core Principles.",
+    "- [Workshop Skeleton & Evals (Raw Markdown)](SKELETON.md) (also available at [skeleton.md](skeleton.md)): Step contracts, invariants, and automated eval specifications.",
+    "",
+    "## Codelab Steps Index"
+  ]
+  parsed_codelab[:steps].each_with_index do |step, idx|
+    llms_txt << "- Step #{idx}: #{step[:title]} (`workshop/index.html##{idx}`)"
+  end
+  File.write(File.join(build_dir, 'llms.txt'), llms_txt.join("\n") + "\n")
+  puts "   🤖 Generated workshop/build/llms.txt"
+end
+
+constitution_md_src = File.join(repo_root, 'docs', 'CONSTITUTION.md')
+if File.exist?(constitution_md_src)
+  FileUtils.cp(constitution_md_src, File.join(build_dir, 'constitution.md'))
+  FileUtils.cp(constitution_md_src, File.join(build_dir, 'CONSTITUTION.md'))
+end
+
+skeleton_md_src = File.join(workshop_dir, 'SKELETON.md')
+if File.exist?(skeleton_md_src)
+  FileUtils.cp(skeleton_md_src, File.join(build_dir, 'skeleton.md'))
+  FileUtils.cp(skeleton_md_src, File.join(build_dir, 'SKELETON.md'))
 end
 
 # Copy workshop assets to build/assets, build/workshop/assets, and build/codelab/assets

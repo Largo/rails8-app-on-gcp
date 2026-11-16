@@ -30,12 +30,21 @@ compose-down:
 compose-logs:
     cd blog && just compose-logs
 
-# run all tests (Rails app test suite + Codelab/Docker/IaC contract tests)
+# run all tests (Rails app test suite + Codelab/Docker/IaC/Visualizer/Diagnostics/Stress contract tests)
 test:
     cd blog && just test
     ruby test/test_codelab_sync_and_contracts.rb
     ruby test/test_docker_compose_contracts.rb
     ruby test/test_iac_codelab_contracts.rb
+    ruby test/test_workshop_diagnostics.rb
+    ruby test/test_workshop_invariants.rb
+    ruby test/test_workshop_time_machine.rb
+    ruby test/test_workshop_visualizer.rb
+    ruby test/test_stress_and_automated_friction_log.rb
+
+# run automated friction-log simulations & multi-surface stress tests (Steps 0..8)
+test-stress:
+    ruby test/test_stress_and_automated_friction_log.rb
 
 # autopush: run tests and push to origin main (GitHub Actions builds static pages on CI)
 autopush:
@@ -189,9 +198,9 @@ gcloud-config:
         set -a && . ./.env && set +a
     fi
     CONFIG_NAME="${GCLOUD_CONFIG:-fl100-rails8}"
-    PROJECT="${GCP_PROJECT_ID:-${PROJECT_ID:-rails8-fl-20260907b-xm8ko4}}"
-    REGION="${GCP_REGION:-${REGION:-europe-west1}}"
-    ACCOUNT="${GCP_ACCOUNT:-${ACCOUNT:-ricc@google.com}}"
+    PROJECT="${GOOGLE_CLOUD_PROJECT:-${GCP_PROJECT_ID:-${PROJECT_ID:-rails8-fl-20260907b-xm8ko4}}}"
+    REGION="${GOOGLE_CLOUD_REGION:-${GCP_REGION:-${REGION:-europe-west1}}}"
+    ACCOUNT="${GOOGLE_CLOUD_ACCOUNT:-${GCP_ACCOUNT:-${ACCOUNT:-student@example.com}}}"
     echo "⚙️ Configuring gcloud profile [${CONFIG_NAME}]..."
     gcloud config configurations create "${CONFIG_NAME}" 2>/dev/null || gcloud config configurations activate "${CONFIG_NAME}"
     echo "  👤 Account: ${ACCOUNT}"
@@ -257,3 +266,8 @@ hive-deploy:
 list:
     @just --list
     gh issue list
+
+# 🧹 Clean Terraform downloaded provider binaries (.terraform/providers & modules, NEVER touching tfstate!), Rails tmp/log caches and node_modules (~1.5 GB)
+clean:
+    find . -maxdepth 6 \( -path '*/.terraform/providers' -o -path '*/.terraform/modules' -o -name 'node_modules' -o -name '.venv' -o -name 'venv' \) -type d -prune -exec rm -rf {} +
+    rm -rf blog/tmp/cache/* blog/log/*.log slides/dist || true

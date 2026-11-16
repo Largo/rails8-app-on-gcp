@@ -28,7 +28,7 @@ Costruiremo insieme una piattaforma blog cloud-native di livello enterprise con 
 ## 🌉 Il Ponte: Dallo Step -1 allo Step 0
 
 ### Step -1 (Riepilogo dalle Slide):
-Hai scaricato **Google Antigravity 2.0**, effettuato il login con il tuo account Google e indirizzato Antigravity su questa pagina. **Sei esattamente nel posto giusto!**
+Hai scaricato **Google Antigravity App**, effettuato il login con il tuo account Google e indirizzato Antigravity su questa pagina. **Sei esattamente nel posto giusto!**
 
 ### Step 0: Le Fondamenta dell'Ambiente Locale ("La Valle delle Lacrime" Risolta!)
 Prima di toccare il cloud, abbiamo bisogno dei nostri strumenti locali pronti:
