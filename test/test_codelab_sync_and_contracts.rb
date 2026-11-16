@@ -351,6 +351,77 @@ class CodelabSyncAndContractsTest < Minitest::Test
     assert_empty offending,
                  "Public config/JSON/YAML/test files MUST NOT expose personal email addresses (#{personal_emails.join(', ')})! Found in: #{offending.join(', ')}"
   end
+
+  # =========================================================================
+  # 10. Constitution §12: Harness-Agnostic Agent Instructions
+  # =========================================================================
+  def test_harness_instruction_files_are_symlinks_to_agents_md
+    %w[GEMINI.md CLAUDE.md].each do |name|
+      path = File.join(REPO_ROOT, name)
+      assert File.symlink?(path), "#{name} must be a symlink, never a copy (Constitution §12)"
+      assert_equal "AGENTS.md", File.readlink(path), "#{name} must point to AGENTS.md"
+    end
+  end
+
+  def test_harness_skill_directories_are_symlinks_to_skills
+    %w[.claude/skills .agents/skills].each do |rel|
+      path = File.join(REPO_ROOT, rel)
+      assert File.symlink?(path), "#{rel} must be a symlink to skills/ (Constitution §12)"
+      assert_equal File.realpath(File.join(REPO_ROOT, "skills")), File.realpath(path),
+                   "#{rel} must resolve to the repository's skills/ directory"
+    end
+  end
+
+  # =========================================================================
+  # 11. DevSite sync must not drop metadata that exists only on the destination
+  # =========================================================================
+  def test_sync_preserves_destination_only_step_metadata_and_frontmatter
+    require "tmpdir"
+    require "open3"
+
+    Dir.mktmpdir do |dir|
+      dest = File.join(dir, "index.lab.md")
+      File.write(dest, <<~MD)
+        ---
+        id: example-codelab
+        ---
+
+        # Rails 8 on Google Cloud: From Zero to AI
+
+        ## Introduction
+        Duration: 05:00
+
+        Stale introduction text.
+
+        ## Step 0: An older title for this step
+        Duration: 10:00
+
+        Destination_Only_Flag: True
+
+        Stale step text.
+      MD
+
+      2.times do |run|
+        _out, err, status = Open3.capture3({ "DEVSITE_CODELAB_PATH" => dest }, "ruby",
+                                           File.join(REPO_ROOT, "bin", "sync_devsite_codelab.rb"))
+        assert status.success?, "sync run #{run + 1} failed: #{err}"
+
+        synced = File.read(dest)
+        assert synced.start_with?("---\nid: example-codelab\n---\n"), "destination frontmatter must survive a sync"
+        refute_includes synced, "Stale step text.", "the body must be replaced by CODELAB.md"
+
+        step0 = synced[/^## Step 0:.*?(?=^## Step 1:)/m]
+        refute_nil step0, "synced file must contain Step 0 followed by Step 1"
+        assert_equal 1, step0.scan("Destination_Only_Flag: True").size,
+                     "run #{run + 1}: the destination-only line must stay under Step 0, exactly once"
+        assert_equal 1, synced.scan("Destination_Only_Flag: True").size,
+                     "run #{run + 1}: the destination-only line must not leak into other steps"
+        assert_operator step0.index("Destination_Only_Flag: True"), :<, step0.index("### 1. Prerequisites Checklist"),
+                        "the destination-only line must sit before the step's first sub-heading"
+        refute_includes step0, "Duration: 10:00", "a key the source already states must not be duplicated"
+      end
+    end
+  end
 end
 
 

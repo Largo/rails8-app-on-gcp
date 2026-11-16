@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [0.3.11] - 2026-11-16
 ### Added
+- 🧰 **Any Coding Harness, per Constitution §12 (`CLAUDE.md`, `.claude/skills`, `.agents/skills`, `AGENTS.md`)**:
+  - Added `CLAUDE.md` as a symlink to `AGENTS.md` (like `GEMINI.md`), and `.claude/skills` and `.agents/skills` as symlinks to `skills/`, so Claude Code, Codex and Antigravity find the same directives and skills after `git clone`. Guarded by two contract tests.
+  - Codelab `v2.4.0`: Step 0 tells attendees to keep the harness they already have, or install Antigravity with a Gmail account.
+- 🍌 **Honest local AI story, per Constitution §11 (`workshop/CODELAB.md`, `workshop/skeleton.yaml`)**:
+  - Step 2 now says a new post gets the bundled placeholder cover in the Docker Compose stack, because its containers hold no Google credentials; Step 7 no longer claims local development reaches Vertex AI out of the box.
+- 🔁 **DevSite sync keeps destination-only metadata (`bin/sync_devsite_codelab.rb`)**:
+  - A sync used to replace the whole body of the destination file, dropping any `Key: Value` line that had been added under a step heading on the DevSite side. Such lines are now carried over under the matching step (matched by step number), and keys the source already states (`Duration`) are not duplicated. Covered by a contract test that runs the script twice against a fixture.
 - 📜 **Compliance with Constitution §11, Zero Gemini API Keys (`AGENTS.md`, `blog/`, `workshop/`)**:
   - Removed static `GEMINI_API_KEY` tokens across application code (`blog/`), Docker Compose configurations (`compose.yaml`, `compose.prod.yaml`), environment templates (`.env.dist`, `.env.example`), and workshop instructions (`workshop/CODELAB.md`, `workshop/SKELETON.md`).
   - Added anti-legacy diagnostic enforcement in `bin/workshop_diagnostics.rb` (`just workshop-test`) and automated contract tests in `test/test_codelab_sync_and_contracts.rb` and `test/test_docker_compose_contracts.rb`.

@@ -17,7 +17,7 @@ This is the canonical high-level roadmap and step breakdown for the Rails 8 on G
   - Git 2.30+ for cloning and branching repository
   - just task runner installed and able to parse the justfile (every workshop command is a just recipe)
   - Installed CLIs: just, git, gcloud, terraform, docker, ruby 3.4.5 (exact, pinned by blog/.ruby-version), rails 8
-  - Google Antigravity App environment
+  - An AI coding harness: Google Antigravity (free with a Gmail account) or your own (Claude Code, Codex, Gemini CLI)
 - **`pseudocode`**:
   ```bash
   gcloud config configurations create rails8-on-gcp-workshop --activate 2>/dev/null || gcloud config configurations activate rails8-on-gcp-workshop
@@ -28,7 +28,7 @@ This is the canonical high-level roadmap and step breakdown for the Rails 8 on G
 - **`postrequisites`**:
   - Authenticated gcloud and Application Default Credentials (ADC)
   - Verified active billing account preventing mid-workshop quota failures
-  - Antigravity connected and paired with repository
+  - Coding harness paired with the repository (reads AGENTS.md, also linked as CLAUDE.md and GEMINI.md)
 - **`evals`**:
   - `[SHELL]` Verify just task runner is installed and the justfile parses on this version
   - `[SHELL]` Verify git CLI is installed and returns valid version
@@ -78,6 +78,7 @@ This is the canonical high-level roadmap and step breakdown for the Rails 8 on G
   - Admin account bootstrapped from GOOGLE_CLOUD_ACCOUNT
   - Intercepted welcome/reset password email in local Mailpit
   - Observed [EPHEMERAL DB / STORAGE] UI badge
+  - Observed the bundled placeholder cover on a new post (the Compose containers hold no Google credentials, so Vertex AI is skipped)
 - **`evals`**:
   - `[SHELL]` Verify local Rails test suite passes
   - `[SHELL]` Verify integration test suite for workshop header alerts (SQL, Storage, AI) passes

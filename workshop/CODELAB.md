@@ -1,6 +1,6 @@
 <!-- ⚠️ AGENT WARNING: This file (CODELAB.md) and SKELETON.md must be kept in sync at all times. A change to one requires a change to the other! -->
-<!-- 📜 Adheres to docs/CONSTITUTION.md (v1.4.0) -->
-<!-- 🏷️ Codelab Version: 2.3.0 -->
+<!-- 📜 Adheres to docs/CONSTITUTION.md (v1.5.0) -->
+<!-- 🏷️ Codelab Version: 2.4.0 -->
 # Rails 8 on Google Cloud: From Zero to AI
 
 ## Introduction
@@ -138,6 +138,10 @@ cd rails8-app-on-gcp
 
 Open this directory in **Google Antigravity**. Antigravity will automatically inspect the repository, read `AGENTS.md`, and stand by as your pair programmer.
 
+> 🧰 **Already have a coding harness you like? Keep it.**
+> Claude Code, Codex, Gemini CLI and Cursor work too: `CLAUDE.md` and `GEMINI.md` are symlinks to `AGENTS.md`, and the repo's skills are linked under `.claude/skills` and `.agents/skills`. Use the same prompt below.
+> No harness yet? [Download Antigravity](https://antigravity.google/download) and sign in with your personal Gmail account: no API key and no subscription needed to start.
+
 Once inside, open the prompt box and kick off your pairing session with this prompt:
 
 ```text
@@ -162,7 +166,7 @@ If the agent stops with a quota message, work down this ladder — the first two
 2. **Pick a Flash model instead of Pro.** Rate limits correlate with how much work the agent does per request, so a lighter model stretches what is left.
 3. **Use the [Antigravity CLI](https://antigravity.google/download) with your own key.** Bring-your-own-key is **not supported in the Antigravity IDE** — the CLI is the documented alternative. Create a free key in [Google AI Studio](https://aistudio.google.com/apikey) (needs a project but **no billing account**), then download and configure the Antigravity CLI. *(Note: this key is strictly for the external CLI harness — per Constitution §11, our Rails 8 application code never uses static API keys and authenticates 100% via keyless Vertex AI ADC!)*
 4. **Wait, or [upgrade](https://gemini.google/subscriptions/).** Free-tier quota refreshes **weekly** (the error message states your reset date). Google AI Pro/Ultra is the only documented way to raise the baseline inside the desktop app; those plans refresh every five hours and can spend purchased AI credits on overage.
-5. *While this is an Antigravity workshop, most AI coding harnesses should also work — just point yours at the `AGENTS.md` and `skills/` directory in the repo.*
+5. *Any other AI coding harness works too: the repo ships `AGENTS.md` (also linked as `CLAUDE.md` and `GEMINI.md`) and a `skills/` directory.*
 
 ### 6. Automated Step 0 Validation
 
@@ -339,6 +343,7 @@ The application, local Mailpit SMTP server, and Adminer database viewer are now 
 3. **Observe the Visual Telemetry Badges:**
    - Notice the yellow environment banner and badges in the UI: `Notice: Ephemeral Database Active (POSTGRESQL)` and `[EPHEMERAL DB / STORAGE] 💾 Local`.
    - Notice the post watermark: The 🏠 stamp (`nanobanana_stamp_local.png` in the bottom-right corner of the cover image). This provides immediate visual confirmation that your assets and database are currently bound to ephemeral local storage.
+   - Create a post **without** a cover image and wait a few seconds: the Solid Queue worker attaches a bundled placeholder poster (`nanobanana_fake_cover.png`), not an AI-generated one. This is expected: the Docker Compose containers hold no Google credentials, so the app skips Vertex AI instead of failing (Constitution §6 and §11). The real AI poster arrives in Step 7, on Cloud Run.
 
 ![Local blog homepage displaying ephemeral telemetry notices and badges](assets/images/step_2_homepage_ephemeral.png)
 
@@ -963,7 +968,7 @@ With Solid Queue running in a dedicated container and Google Cloud Storage activ
 Good news: **this functionality is already fully implemented in the codebase!** You don't need to write any code — your task here is to trigger and observe an asynchronous cloud GenAI pipeline in action.
 
 #### 🧠 How it Works Behind the Scenes
-- **Authentication (Zero API Keys — Constitution §11):** Static Gemini API keys are strictly banned! Both local development (`gcloud auth application-default login`) and Cloud Run (`rails-cloudrun-sa` granted `roles/aiplatform.user`) authenticate 100% via keyless **Vertex AI Application Default Credentials (ADC)**.
+- **Authentication (Zero API Keys — Constitution §11):** Static Gemini API keys are strictly banned! On Cloud Run the app authenticates to **Vertex AI** with keyless **Application Default Credentials (ADC)**: the `rails-cloudrun-sa` service account, granted `roles/aiplatform.user`. Rails run directly on your host can use `gcloud auth application-default login` the same way. The local Docker Compose stack holds no credentials, which is why Step 2 showed the placeholder poster.
 - **The Pipeline:** When an article is created without a cover image, an `after_commit` callback enqueues `GenerateCoverImageJob` into **Solid Queue**.
 - **Model:** It prompts Google's multimodal model (**Gemini 2.5 Flash Image** / Imagen on Vertex AI) to generate an authentic vintage 1960s Italian film poster (*"Locandina di un film 1960"*) complete with a cameo banana and a shiny ruby "8".
 - **Dynamic Provenance Watermark:** Uses `libvips` to dynamically stamp a visual badge on the corner (colorful cloud stamp on GCS).
@@ -1315,4 +1320,4 @@ gcloud projects delete $GOOGLE_CLOUD_PROJECT --quiet
 
 ---
 
-*Codelab Version: v2.3.0 (2026-10-08) — Synchronized across GitHub (`workshop/CODELAB.md`) & Google DevSite (`rails8-on-google-cloud`). See [`workshop/CODELAB_CHANGELOG.md`](https://github.com/palladius/rails8-app-on-gcp/blob/main/workshop/CODELAB_CHANGELOG.md).*
+*Codelab Version: v2.4.0 (2026-11-16) — Synchronized across GitHub (`workshop/CODELAB.md`) & Google DevSite (`rails8-on-google-cloud`). See [`workshop/CODELAB_CHANGELOG.md`](https://github.com/palladius/rails8-app-on-gcp/blob/main/workshop/CODELAB_CHANGELOG.md).*

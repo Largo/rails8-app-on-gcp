@@ -1,7 +1,7 @@
 # 🤖 AGENTS.md — Directives & Blueprint for AI Coding Assistants
 
-> This file contains the canonical project directives for AI coding agents (**Gemini**, **Claude Code**, and **Antigravity**).
-> `GEMINI.md` is a symlink pointing directly to this file.
+> This file contains the canonical project directives for AI coding agents (**Gemini**, **Claude Code**, **Codex**, and **Antigravity**).
+> `GEMINI.md` and `CLAUDE.md` are symlinks pointing directly to this file (Constitution §12), and `.claude/skills` and `.agents/skills` are symlinks to `skills/`.
 >
 
 ## 📜 Constitutional Hierarchy & File Changes
