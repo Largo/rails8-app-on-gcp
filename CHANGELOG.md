@@ -2,10 +2,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-## [0.3.6] - 2026-10-08
+## [0.3.11] - 2026-11-16
 ### Added
-- 📜 **Constitution v1.4.0 — Core Principle #11: Zero Gemini API Keys (100% Vertex AI with ADC) (`docs/CONSTITUTION.md`, `AGENTS.md`)**:
-  - Formally banned static `GEMINI_API_KEY` tokens across application code (`blog/`), Docker Compose configurations (`compose.yaml`, `compose.prod.yaml`), environment templates (`.env.dist`, `.env.example`), and workshop instructions (`workshop/CODELAB.md`, `workshop/SKELETON.md`).
+- 📜 **Compliance with Constitution §11, Zero Gemini API Keys (`AGENTS.md`, `blog/`, `workshop/`)**:
+  - Removed static `GEMINI_API_KEY` tokens across application code (`blog/`), Docker Compose configurations (`compose.yaml`, `compose.prod.yaml`), environment templates (`.env.dist`, `.env.example`), and workshop instructions (`workshop/CODELAB.md`, `workshop/SKELETON.md`).
   - Added anti-legacy diagnostic enforcement in `bin/workshop_diagnostics.rb` (`just workshop-test`) and automated contract tests in `test/test_codelab_sync_and_contracts.rb` and `test/test_docker_compose_contracts.rb`.
 - 🤖 **Agent-Friendly Codelab `.md` Switcher & Agentic Accessibility (`REQ-09`, `workshop/visualizer/server.rb`, `workshop/visualizer/build_ghpages.rb`)**:
   - Added top-header **`📋 Copy Step .md`** (copies the active step's raw Markdown to clipboard for pasting into Claude/Gemini/Antigravity), **`📄 View .md`** (live toggle between rendered HTML and raw Markdown `<pre>` view), and **`🤖 Full .md`** (`CODELAB.md` / `/codelab.md`).
@@ -26,7 +26,7 @@ All notable changes to this project will be documented in this file.
 - 🔴 **Eradicated `GEMINI_API_KEY` Precedence Trap in Nano Banana Worker (`P0-1`, `blog/lib/nanobanana.rb`, `blog/compose.prod.yaml`, `blog/app/controllers/statuses_controller.rb`)**:
   - Removed `Nanobanana.gemini_api_key` and `generate_via_gemini_api` (`generativelanguage.googleapis.com`). Previously, exporting `GEMINI_API_KEY="dummy-key"` in Step 6 caused `Nanobanana` to prefer the dummy key over live Cloud Run Service Account ADC, failing in background workers with HTTP 400 (`API key not valid`). `Nanobanana` now authenticates 100% via keyless Vertex AI Application Default Credentials (`GOOGLE_CLOUD_PROJECT` + ADC).
 - 🔴 **Fixed Fake Production IAP Auto-Login & Added `IAP_MOCK_EMAIL` Warning Banner (`P0-2`, `REQ-10`, `blog/compose.prod.yaml`, `blog/app/controllers/concerns/iap_authenticatable.rb`)**:
-  - Removed `IAP_MOCK_EMAIL: ${IAP_MOCK_EMAIL:-ricc@google.com}` from `blog/compose.prod.yaml`, which was auto-authenticating every production visitor as `ricc@google.com`.
+  - Removed the `IAP_MOCK_EMAIL` entry from `blog/compose.prod.yaml` altogether (0.3.9 had already dropped its hardcoded `ricc@google.com` default), so production never reads a mock identity.
   - When `ENV["IAP_MOCK_EMAIL"]` is used in local dev/test, `IapAuthenticatable` now displays an explicit warning banner (`⚠️ This is a fake IAP login based on ENV[IAP_MOCK_EMAIL] — do NOT use in prod!!!`).
 - 🛠️ **Friction-Log Review Codelab Remediations (`REQ-01`..`REQ-10`, `workshop/CODELAB.md`, `cloudbuild.yaml`)**:
   - **`REQ-01`**: Added prominent warning against running interactive `gcloud init` inside Cloud Shell or pre-provisioned workshop VMs.
@@ -35,6 +35,49 @@ All notable changes to this project will be documented in this file.
   - **`REQ-05`**: Added Docker layer caching (`--cache-from`) to `cloudbuild.yaml` and documented `bundle lock --add-platform x86_64-linux`.
   - **`REQ-06`..`REQ-08`**: Added explicit `roles/aiplatform.user` IAM verification in Step 7, removed raw `TODO(riccardo)` placeholders, clarified TLS endpoint terminology in Step 3, and expanded `Conclusion & Clean Up` with surgical CLI + Terraform teardown commands.
   - **`REQ-10` (Septober `#175`)**: Scrubbed all personal `@gmail.com` and `ricc@google.com` addresses from `.env.dist`, `blog/compose.prod.yaml`, `justfile`, `bin/`, and test suites, replacing them with RFC 2606 / workshop placeholders (`student@example.com`, `simulated-iap-account@example.com`) guarded by `test_no_personal_emails_in_public_configs_or_tests`.
+
+## [0.3.10] - 2026-11-16
+### Changed
+- 📜 **Constitution v1.5.0 (`docs/CONSTITUTION.md`)**:
+  - Added §11 *Zero Gemini API Keys* (drafted as v1.4.0, never published on its own). Its local-development wording now separates Rails on the host from the Docker Compose stack, where containers receive no host credentials and AI features return the bundled mock asset.
+  - Added §12 *Harness-Agnostic Agent Instructions*: `AGENTS.md` is canonical, `GEMINI.md` and `CLAUDE.md` must be symlinks to it.
+  - Added §13 *Provider-Specific Code Lives at Named Seams*.
+  - Removed the reference to `workshop/UNTOUCHABLE-CONSTITUTION.md`, a file deleted in September 2026 (commit `5894722`).
+  - Governance text only. Application code, `CLAUDE.md` and the workshop do not yet comply with §11 to §13; that work follows in separate pull requests.
+
+## [0.3.9] - 2026-10-27
+### Fixed
+- 🛡️ **IAP Mock Identity Leak in Production (`blog/compose.prod.yaml`)**:
+  - Removed hardcoded default `ricc@google.com` fallback for `IAP_MOCK_EMAIL` in `blog/compose.prod.yaml` (now `${IAP_MOCK_EMAIL:-}`). This prevents visitors from automatically being authenticated as `ricc@google.com` in Cloud Run deployments before IAP is configured (fixes #181).
+
+## [0.3.8] - 2026-10-23
+### Changed
+- 🏃 **Terraform Cloud Run Service Renamed to `sample-app` (#192)**:
+  - Renamed the default Cloud Run service provisioned by Terraform in Step 1 from `${var.project_id}-rails-app` to `${var.project_id}-sample-app` (configurable via `var.sample_app_service_name`).
+  - Stripped unused database credentials, Secret Manager runtime mount, and Cloud SQL proxy volumes from the placeholder `hello` container, turning it into a lean, fast infrastructure smoke test.
+  - Eliminated plaintext database password from Cloud Run service environment variables (resolving #188).
+  - Clarified in `iac/out/OUTPUT.html` and `iac/README.md.tftpl` that this service is an infrastructure placeholder, and that attendees build and deploy `blog` starting in Step 3.
+
+### Added
+- 🚧 **Prominent Sample App Warning Banner (`_sample_app_banner.html.erb`) (#192)**:
+  - Added a high-visibility amber/orange alert banner at the very top of `workshop/alerts/_hub.html.erb`, triggered when `SAMPLE_APP_BANNER` or `OPTIONAL_BANNER` is set or when `K_SERVICE` includes `sample-app`.
+  - Includes a direct link to the workshop codelab (`https://palladius.github.io/rails8-app-on-gcp/`).
+  - Exposed `is_sample_app` and `sample_app_banner` in `StatusesController` (`/status.json` and `/status` HTML dashboard).
+- 🐝 **Workshop Hive Leaderboard Sample App Detection (#192)**:
+  - Added `is_sample_app` detection in `Healthchecker` and exposed `is_sample_app` badge in `workshop/hive/public/js/hive.js` so instructors and attendees immediately spot submissions pointing to the Terraform sample placeholder rather than their own deployment.
+
+## [0.3.7] - 2026-10-22
+### Added
+- 🤖 **Antigravity Permission Rules Pre-Flight Check (`bin/workshop_diagnostics.rb`, `test/test_workshop_diagnostics.rb`)**:
+  - Added Section `4c` to `bin/workshop_diagnostics.rb` (`just workshop-test`) to inspect `~/.gemini/config/config.json`, `~/.gemini/antigravity-cli/settings.json`, and `~/.gemini/config/projects/*.json` for deprecated `unsandboxed(...)` permission rules and fail fast with remediation guidance (`replace "unsandboxed(" with "command("`).
+  - Added unit tests in `test/test_workshop_diagnostics.rb` (`test_fails_when_deprecated_unsandboxed_permission_rules_present` and `test_passes_antigravity_permission_check_when_only_command_rules_present`) using an isolated `GEMINI_CONFIG_DIR` fixture.
+
+## [0.3.6] - 2026-10-08
+### Security & Privacy
+- 🔒 **PII Masking on Telemetry (`GOOGLE_CLOUD_ACCOUNT` & `ADMIN_EMAIL`) (#185)**: Obfuscated personal email addresses in `StatusesController#safe_env_inspection` (e.g. `settilorenzo97@gmail.com` -> `se***97@gmail.com`, `ricc@google.com` -> `r***@google.com`) to prevent scraping and harvesting personal contact info from unauthenticated `/status` and `/status.json` endpoints on Cloud Run. Short local parts (<= 4 chars) reveal only their first character. Each `safe_environment` entry now carries an `is_pii` flag (single source of truth: `StatusesController::PII_EMAIL_VARS`).
+- 🔒 **No more secret length oracle (#185)**: Secrets are now rendered with a fixed-length mask (`StatusesController::SECRET_MASK`, `********`) instead of length-preserving asterisks, so the public endpoint no longer leaks how long the admin password or API keys are. Instructors can still debug via `is_set`.
+- 🔒 **Private HTTP Caching for `/status` (#185)**: Replaced `public: true` with `public: false` in `expires_in 1.minute` so that shared reverse proxies and CDN edges do not cache and distribute environment telemetry across unrelated clients, while retaining browser cache responsiveness.
+- 🔑 **Added `APP_ADMIN_PASSWORD` to Environment Inspection (#185)**: Tracked canonical administrator password variable `APP_ADMIN_PASSWORD` alongside `ADMIN_PASSWORD`, both masked with the fixed-length mask.
 
 ## [0.3.5] - 2026-10-07
 ### Added

@@ -3,6 +3,11 @@
 class StatusesController < ApplicationController
   allow_unauthenticated_access only: [:show]
 
+  # Env vars holding personal email addresses: partially masked on the public /status endpoint (#185)
+  PII_EMAIL_VARS = %w[GOOGLE_CLOUD_ACCOUNT ADMIN_EMAIL].freeze
+  # Fixed-length mask for secrets, so the endpoint does not leak their length (#185)
+  SECRET_MASK = "********"
+
   def show
     # Run environment detection (0 ms)
     @run_env = detect_run_env
@@ -41,8 +46,8 @@ class StatusesController < ApplicationController
       attachments_count: (ActiveStorage::Attachment.count rescue 0)
     }
 
-    # Cache status response for 1 minute on proxy/browser to balance responsiveness and protect against hammering
-    expires_in 1.minute, public: true, stale_while_revalidate: 30.seconds
+    # Cache status response for 1 minute on browser (private cache) to protect against hammering
+    expires_in 1.minute, public: false, stale_while_revalidate: 30.seconds
 
     respond_to do |format|
       format.html
@@ -65,33 +70,44 @@ class StatusesController < ApplicationController
   private
 
   def detect_run_env
-    if ENV["K_SERVICE"].present? || ENV["RAILS8_ENV_LAUNCH_MODE"].to_s.downcase.include?("cloud run")
-      {
-        tier: :cloud_run,
-        badge: "☁️ Google Cloud Run",
-        color: "#059669",
-        is_cloud: true,
-        service_name: ENV["K_SERVICE"],
-        revision_name: ENV["K_REVISION"],
-        details: "Serverless container running on Cloud Run (Service: #{ENV['K_SERVICE'] || 'custom'})"
-      }
-    elsif File.exist?("/.dockerenv") || ENV["DOCKER_CONTAINER"].present? || ENV["RAILS8_ENV_LAUNCH_MODE"].to_s.downcase.include?("docker")
-      {
-        tier: :docker,
-        badge: "🐳 Docker Compose",
-        color: "#0284c7",
-        is_cloud: false,
-        details: "Containerized application running via Docker Compose (PostgreSQL)"
-      }
-    else
-      {
-        tier: :local_rails,
-        badge: "💻 Local Rails (Host)",
-        color: "#6366f1",
-        is_cloud: false,
-        details: "Running natively on host developer machine (#{`hostname`.strip rescue 'localhost'})"
-      }
-    end
+    is_sample = ENV["SAMPLE_APP_BANNER"].present? ||
+                ENV["OPTIONAL_BANNER"].present? ||
+                ENV["K_SERVICE"].to_s.include?("sample-app")
+    sample_banner = ENV["SAMPLE_APP_BANNER"].presence || ENV["OPTIONAL_BANNER"].presence
+
+    env_data =
+      if ENV["K_SERVICE"].present? || ENV["RAILS8_ENV_LAUNCH_MODE"].to_s.downcase.include?("cloud run")
+        {
+          tier: :cloud_run,
+          badge: "☁️ Google Cloud Run",
+          color: "#059669",
+          is_cloud: true,
+          service_name: ENV["K_SERVICE"],
+          revision_name: ENV["K_REVISION"],
+          details: "Serverless container running on Cloud Run (Service: #{ENV['K_SERVICE'] || 'custom'})"
+        }
+      elsif File.exist?("/.dockerenv") || ENV["DOCKER_CONTAINER"].present? || ENV["RAILS8_ENV_LAUNCH_MODE"].to_s.downcase.include?("docker")
+        {
+          tier: :docker,
+          badge: "🐳 Docker Compose",
+          color: "#0284c7",
+          is_cloud: false,
+          details: "Containerized application running via Docker Compose (PostgreSQL)"
+        }
+      else
+        {
+          tier: :local_rails,
+          badge: "💻 Local Rails (Host)",
+          color: "#6366f1",
+          is_cloud: false,
+          details: "Running natively on host developer machine (#{`hostname`.strip rescue 'localhost'})"
+        }
+      end
+
+    env_data.merge(
+      is_sample_app: is_sample,
+      sample_app_banner: sample_banner
+    )
   end
 
   def detect_db_status
@@ -299,21 +315,28 @@ class StatusesController < ApplicationController
       K_CONFIGURATION
       PORT
       ADMIN_EMAIL
+      APP_ADMIN_PASSWORD
       ADMIN_PASSWORD
       DATABASE_URL
       SOLID_QUEUE_IN_PUMA
       STEP_8_GHI
+      SAMPLE_APP_BANNER
+      OPTIONAL_BANNER
     ]
 
     vars_of_interest.map do |var_name|
       val = ENV[var_name]
       is_secret = secret_patterns.any? { |pat| var_name.match?(pat) }
+      is_pii = PII_EMAIL_VARS.include?(var_name)
       display_value =
         if val.nil?
           "nil"
         elsif is_secret
-          # Length-preserving asterisk masking
-          "*" * [val.length, 4].max
+          # Fixed-length mask: never leak the secret length on this unauthenticated endpoint (#185).
+          # Instructors can still debug via `is_set`.
+          SECRET_MASK
+        elsif is_pii
+          mask_pii_email(val)
         else
           val
         end
@@ -322,9 +345,31 @@ class StatusesController < ApplicationController
         key: var_name,
         value: display_value,
         is_set: val.present?,
-        is_secret: is_secret
+        is_secret: is_secret,
+        is_pii: is_pii
       }
     end
+  end
+
+  # Masks the local part of an email address, keeping the domain for debugging:
+  #   "j@x.com" / "ricc@x.com"      -> "j***@x.com" / "r***@x.com"   (<= 4 chars: first char only)
+  #   "abcde@x.com" .. 8 chars       -> "a***e@x.com"
+  #   "settilorenzo97@gmail.com"     -> "se***97@gmail.com"
+  def mask_pii_email(val)
+    str = val.to_s.strip
+    return "nil" if str.empty? || str == "nil"
+    return str unless str.include?("@")
+
+    user, domain = str.split("@", 2)
+    masked_user =
+      if user.length <= 4
+        "#{user[0]}***"
+      elsif user.length <= 8
+        "#{user[0]}***#{user[-1]}"
+      else
+        "#{user[0..1]}***#{user[-2..-1]}"
+      end
+    "#{masked_user}@#{domain}"
   end
 
   def detect_git_commit

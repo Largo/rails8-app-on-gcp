@@ -74,6 +74,8 @@ class StressAndAutomatedFrictionLogTest < Minitest::Test
       "RBENV_VERSION" => "3.4.5",
       "BUNDLE_USER_HOME" => "/tmp/bundle",
       "RAILS_MASTER_KEY" => nil,
+      # Keep the simulation hermetic: never read the host's Antigravity config.
+      "GEMINI_CONFIG_DIR" => File.join(dir, "gemini-config-empty"),
       "GOOGLE_CLOUD_PROJECT" => "fl-sim-project",
       "GOOGLE_CLOUD_REGION" => "europe-west1",
       "GOOGLE_CLOUD_ACCOUNT" => active_account
