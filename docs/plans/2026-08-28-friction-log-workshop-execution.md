@@ -99,7 +99,7 @@ terraform init -backend-config="bucket=rails8-fl-repro-20260828-tfstate" -reconf
 terraform apply -auto-approve \
   -var="project_id=rails8-fl-repro-20260828" \
   -var="region=europe-west1" \
-  -var='developers=["user:ricc@google.com", "user:riccardolobotomy@gmail.com"]' \
+  -var='developers=["user:student@example.com", "user:admin@example.com"]' \
   -var="enable_iap=false"
 ```
 

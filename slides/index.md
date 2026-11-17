@@ -136,11 +136,11 @@ style: |
 
 ---
 
-## 1. Download Google Antigravity 2.0 ⬇️
+## 1. Download Google Antigravity App ⬇️
 
 <div style="margin: 8px 0 10px 0;">
   <a href="https://antigravity.google/download" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #1a73e8; color: white; padding: 6px 18px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.85em;">
-    🚀 Download Antigravity 2.0
+    🚀 Download Antigravity App
   </a>
 </div>
 
@@ -152,7 +152,7 @@ style: |
 </div>
 
 <p style="font-size: 0.8em; color: #5f6368; text-align: center; margin: 4px 0 0 0;">
-  💡 <strong>Note:</strong> Not CLI, not IDE — <strong>Antigravity 2.0</strong> is all you need!
+  💡 <strong>Note:</strong> Not CLI, not IDE — <strong>Antigravity App</strong> is all you need!
 </p>
 
 ---

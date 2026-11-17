@@ -20,6 +20,20 @@ module WorkshopHive
       set :port, ENV.fetch("PORT", 8080).to_i
     end
 
+    def self.start_crunching!(interval: ENV.fetch("HIVE_POLL_INTERVAL", 15).to_i)
+      return if ENV["HIVE_BACKGROUND_POLLER"].to_s.strip.downcase == "false"
+
+      poll_interval = interval > 0 ? interval : 15
+      Healthchecker.start_background_poller!(
+        proc do
+          authorizer = ServiceAccountLoader.load_authorizer
+          entries = SheetsReader.fetch_entries(credentials: authorizer)
+          entries.map { |e| e[:url] }
+        end,
+        interval: poll_interval
+      )
+    end
+
     helpers do
       def build_index_json(params)
         max_age = params["max_age"]
@@ -52,7 +66,7 @@ module WorkshopHive
         cinderella_expiry = event_start ? (event_start + (coupon_hrs * 3600)) : nil
         cinderella_hrs_left = cinderella_expiry ? [0.0, ((cinderella_expiry - now) / 3600.0).round(2)].max : nil
 
-        version = (File.read(File.join(__dir__, "VERSION")).strip rescue "0.1.1")
+        version = (File.read(File.join(__dir__, "VERSION")).strip rescue "0.1.7")
 
         step_counts = Hash.new(0)
         total_up = 0
@@ -128,8 +142,10 @@ module WorkshopHive
         {
           status: "ok",
           service: "workshop-hive",
+          project_id: ENV["GOOGLE_CLOUD_PROJECT"] || ENV["PROJECT_ID"] || "rails8-hive-backend-prod",
           version: version,
           timestamp: now.iso8601,
+          cruncher: Healthchecker.cruncher_stats,
           event: {
             name: event_name,
             started_at: event_start&.iso8601,
@@ -176,14 +192,39 @@ module WorkshopHive
     end
 
     get "/up" do
-      version = (File.read(File.join(__dir__, "VERSION")).strip rescue "0.1.1")
+      version = (File.read(File.join(__dir__, "VERSION")).strip rescue "0.1.7")
       content_type :json
       {
         status: "ok",
         service: "workshop-hive",
+        project_id: ENV["GOOGLE_CLOUD_PROJECT"] || ENV["PROJECT_ID"] || "rails8-hive-backend-prod",
         version: version,
+        cruncher: Healthchecker.cruncher_stats,
         timestamp: Time.now.utc.iso8601
       }.to_json
+    end
+
+    %i[get post].each do |http_verb|
+      send(http_verb, "/api/crunch") do
+        content_type :json
+        authorizer = ServiceAccountLoader.load_authorizer
+        entries = SheetsReader.fetch_entries(credentials: authorizer, max_age: params["max_age"])
+        urls = entries.map { |e| e[:url] }
+        checks = Healthchecker.check_all(urls)
+        Healthchecker.record_crunch_run!
+
+        up_count = checks.values.count { |c| c[:status] == "up" }
+        {
+          status: "ok",
+          action: "crunched",
+          project_id: ENV["GOOGLE_CLOUD_PROJECT"] || ENV["PROJECT_ID"] || "rails8-hive-backend-prod",
+          total_students: entries.size,
+          total_checked: checks.size,
+          total_up: up_count,
+          cruncher: Healthchecker.cruncher_stats,
+          timestamp: Time.now.utc.iso8601
+        }.to_json
+      end
     end
 
     get "/api/leaderboard" do
@@ -201,7 +242,7 @@ module WorkshopHive
       deduplicate = !show_dupes
       authorizer = ServiceAccountLoader.load_authorizer
       entries = SheetsReader.fetch_entries(credentials: authorizer, max_age: max_age, deduplicate: deduplicate)
-      version = (File.read(File.join(__dir__, "VERSION")).strip rescue "0.1.1")
+      version = (File.read(File.join(__dir__, "VERSION")).strip rescue "0.1.7")
 
       {
         status: "ok",
@@ -227,6 +268,7 @@ module WorkshopHive
       {
         status: "ok",
         total_checked: checks.size,
+        cruncher: Healthchecker.cruncher_stats,
         checks: checks,
         timestamp: Time.now.utc.iso8601
       }.to_json
@@ -234,6 +276,8 @@ module WorkshopHive
   end
 end
 
-
-WorkshopHive::App.run! if __FILE__ == $PROGRAM_NAME
+if __FILE__ == $PROGRAM_NAME
+  WorkshopHive::App.start_crunching!
+  WorkshopHive::App.run!
+end
 

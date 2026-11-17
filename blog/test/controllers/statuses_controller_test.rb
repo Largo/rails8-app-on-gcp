@@ -117,7 +117,7 @@ class StatusesControllerTest < ActionDispatch::IntegrationTest
     old_account = ENV["GOOGLE_CLOUD_ACCOUNT"]
     old_email = ENV["ADMIN_EMAIL"]
     ENV["GOOGLE_CLOUD_ACCOUNT"] = "settilorenzo97@gmail.com"
-    ENV["ADMIN_EMAIL"] = "ricc@google.com"
+    ENV["ADMIN_EMAIL"] = "jane@example.com"
     begin
       get status_url(format: :json)
       assert_response :success
@@ -135,7 +135,7 @@ class StatusesControllerTest < ActionDispatch::IntegrationTest
       # Short local parts (<= 4 chars) only reveal their first character
       admin_entry = safe_env.find { |e| e["key"] == "ADMIN_EMAIL" }
       assert admin_entry.present?
-      assert_equal "r***@google.com", admin_entry["value"]
+      assert_equal "j***@example.com", admin_entry["value"]
       assert_equal true, admin_entry["is_set"]
       assert_equal false, admin_entry["is_secret"]
       assert_equal true, admin_entry["is_pii"]

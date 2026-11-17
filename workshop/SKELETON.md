@@ -17,7 +17,7 @@ This is the canonical high-level roadmap and step breakdown for the Rails 8 on G
   - Git 2.30+ for cloning and branching repository
   - just task runner installed and able to parse the justfile (every workshop command is a just recipe)
   - Installed CLIs: just, git, gcloud, terraform, docker, ruby 3.4.5 (exact, pinned by blog/.ruby-version), rails 8
-  - Google Antigravity 2.0 environment
+  - An AI coding harness: Google Antigravity (free with a Gmail account) or your own (Claude Code, Codex, Gemini CLI)
 - **`pseudocode`**:
   ```bash
   gcloud config configurations create rails8-on-gcp-workshop --activate 2>/dev/null || gcloud config configurations activate rails8-on-gcp-workshop
@@ -28,7 +28,7 @@ This is the canonical high-level roadmap and step breakdown for the Rails 8 on G
 - **`postrequisites`**:
   - Authenticated gcloud and Application Default Credentials (ADC)
   - Verified active billing account preventing mid-workshop quota failures
-  - Antigravity connected and paired with repository
+  - Coding harness paired with the repository (reads AGENTS.md, also linked as CLAUDE.md and GEMINI.md)
 - **`evals`**:
   - `[SHELL]` Verify just task runner is installed and the justfile parses on this version
   - `[SHELL]` Verify git CLI is installed and returns valid version
@@ -78,6 +78,7 @@ This is the canonical high-level roadmap and step breakdown for the Rails 8 on G
   - Admin account bootstrapped from GOOGLE_CLOUD_ACCOUNT
   - Intercepted welcome/reset password email in local Mailpit
   - Observed [EPHEMERAL DB / STORAGE] UI badge
+  - Observed the bundled placeholder cover on a new post (the Compose containers hold no Google credentials, so Vertex AI is skipped)
 - **`evals`**:
   - `[SHELL]` Verify local Rails test suite passes
   - `[SHELL]` Verify integration test suite for workshop header alerts (SQL, Storage, AI) passes
@@ -168,7 +169,7 @@ This is the canonical high-level roadmap and step breakdown for the Rails 8 on G
   just workshop-restore-gold
   export RUN_SA="rails-cloudrun-sa@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com"
   gcloud run compose up compose.prod.yaml --region=$GOOGLE_CLOUD_REGION
-  gcloud run services update blog --region=$GOOGLE_CLOUD_REGION --service-account=$RUN_SA
+  gcloud run services update blog --region=$GOOGLE_CLOUD_REGION --service-account=$RUN_SA --set-secrets="RAILS_MASTER_KEY=rails-master-key:latest"
   ```
 - **`postrequisites`**:
   - Production-grade multi-container sidecar architecture running serverlessly on Cloud Run
@@ -187,7 +188,7 @@ This is the canonical high-level roadmap and step breakdown for the Rails 8 on G
 - **`description`**: Enable asynchronous background GenAI cover generation, text-to-speech podcast synthesis, and recover orphan cloud blobs via Rails console.
 - **`prerequisites`**:
   - Step 6 completed
-  - GEMINI_API_KEY or Vertex AI IAM permissions active
+  - Vertex AI IAM permissions (roles/aiplatform.user) and ADC active
 - **`pseudocode`**:
   ```bash
   gcloud run jobs execute ai-image-sync || bin/rails runner GenerateCoverImageJob.perform_now
@@ -204,7 +205,7 @@ This is the canonical high-level roadmap and step breakdown for the Rails 8 on G
   - `[LLM]` Verify student implementation of Podcastifier via Antigravity if attempted
   - `[RUBY]` Verify deterministic absence of warning alerts, stuck jobs, and ephemeral badges via integration tests
   - `[LLM]` Verify rendered UI and screenshots at Step 7 have zero warning banners, zero pending background jobs alerts, and no ephemeral storage badges
-  - `[RUBY]` Verify status telemetry infers Step 7 when Cloud Run has Cloud SQL, GCS, and active AI credentials
+  - `[RUBY]` Verify status telemetry infers Step 7 when Cloud Run has Cloud SQL, GCS, and active Vertex AI ADC credentials
   - `[RUBY]` Verify no posts have broken ActiveStorage cover image attachments (orphan blobs)
 
 ---

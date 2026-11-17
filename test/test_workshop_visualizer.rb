@@ -107,4 +107,32 @@ class WorkshopVisualizerTest < Minitest::Test
     refute_includes res.body, 'href="/constitution"'
     refute_includes res.body, 'href="/skeleton"'
   end
+
+  def test_codelab_includes_guillaume_md_buttons_and_agent_a11y_metadata
+    res = @request.get("/codelab")
+    assert_equal 200, res.status
+    assert_includes res.body, '<link rel="alternate" type="text/markdown" href="/codelab.md"'
+    assert_includes res.body, '<meta name="ai-agent-instructions"'
+    assert_includes res.body, 'id="copy-step-md-btn"'
+    assert_includes res.body, 'id="toggle-step-md-btn"'
+    assert_includes res.body, 'id="full-codelab-md-link"'
+    assert_includes res.body, 'class="agent-a11y-banner"'
+    assert_includes res.body, '<script type="text/markdown" id="raw-md-step-0" class="step-raw-markdown"'
+  end
+
+  def test_raw_codelab_md_endpoint_returns_markdown
+    res = @request.get("/codelab.md")
+    assert_equal 200, res.status
+    assert_includes res.headers["content-type"].to_s, "text/markdown"
+    assert_includes res.body, "# Rails 8 on Google Cloud: From Zero to AI"
+    assert_includes res.body, "## Step 0:"
+  end
+
+  def test_llms_txt_endpoint_returns_agent_index
+    res = @request.get("/llms.txt")
+    assert_equal 200, res.status
+    assert_includes res.headers["content-type"].to_s, "text/plain"
+    assert_includes res.body, "Full Workshop Codelab (Raw Markdown)"
+    assert_includes res.body, "/codelab.md"
+  end
 end

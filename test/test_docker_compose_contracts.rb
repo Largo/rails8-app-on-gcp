@@ -103,4 +103,13 @@ class DockerComposeContractsTest < Minitest::Test
     assert_match(/\.\.\/\.env/, @entrypoint,
                  "blog/bin/docker-entrypoint must source ../.env when present")
   end
+
+  def test_compose_prod_yaml_excludes_gemini_api_key_and_iap_mock_email
+    prod_path = File.expand_path("../blog/compose.prod.yaml", __dir__)
+    prod_raw = File.read(prod_path)
+    refute_match(/GEMINI_API_KEY/, prod_raw,
+                 "blog/compose.prod.yaml must never pass GEMINI_API_KEY (violates Constitution §11 — use Vertex AI via ADC)")
+    refute_match(/IAP_MOCK_EMAIL/, prod_raw,
+                 "blog/compose.prod.yaml must never set IAP_MOCK_EMAIL in production (causes fake IAP login for all visitors)")
+  end
 end

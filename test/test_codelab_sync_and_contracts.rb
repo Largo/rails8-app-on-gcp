@@ -10,14 +10,14 @@ class CodelabSyncAndContractsTest < Minitest::Test
   REPO_ROOT = File.expand_path("..", __dir__)
   CODELAB_PATH = File.join(REPO_ROOT, "workshop", "CODELAB.md")
   SKELETON_YAML_PATH = File.join(REPO_ROOT, "workshop", "skeleton.yaml")
-  DOTENV_DEVSITE_PATH = begin
-    dotenv = File.join(REPO_ROOT, ".env")
-    if File.exist?(dotenv)
-      match = File.read(dotenv).match(/^(?:export\s+)?DEVSITE_CODELAB_PATH=['"]?([^'"\n#]+)['"]?/)
-      match && match[1].strip
-    end
+  LOCAL_DEVSITE_PATH = File.join(REPO_ROOT, "workshop", "build", "devsite", "index.lab.md")
+  DEVSITE_LAB_PATH = if File.exist?(LOCAL_DEVSITE_PATH)
+    LOCAL_DEVSITE_PATH
+  elsif ENV["DEVSITE_CODELAB_PATH"] && File.exist?(ENV["DEVSITE_CODELAB_PATH"]) && File.writable?(ENV["DEVSITE_CODELAB_PATH"])
+    ENV["DEVSITE_CODELAB_PATH"]
+  else
+    LOCAL_DEVSITE_PATH
   end
-  DEVSITE_LAB_PATH = ENV["DEVSITE_CODELAB_PATH"] || DOTENV_DEVSITE_PATH || File.join(REPO_ROOT, "workshop", "build", "devsite", "index.lab.md")
 
   def setup
     @codelab = File.read(CODELAB_PATH)
@@ -248,7 +248,7 @@ class CodelabSyncAndContractsTest < Minitest::Test
   end
 
   def test_skeleton_yaml_evals_pin_rbenv_version_3_4_5
-    %w[step-5 step-6].each do |step_id|
+    %w[step-5 step-6 step-7].each do |step_id|
       step = @skeleton["steps"].find { |s| s["id"] == step_id }
       refute_nil step, "Missing #{step_id} in skeleton.yaml"
       eval_item = step["evals"].find { |e| e["id"] == "#{step_id}-ruby-status-json-step" }
@@ -290,11 +290,137 @@ class CodelabSyncAndContractsTest < Minitest::Test
   def test_no_internal_google_paths_exfiltrated
     forbidden_prefix = ["/google", "src/"].join("/")
     files = `git -C #{REPO_ROOT} ls-files`.lines.map(&:strip)
-    offending = files.reject { |f| %w[AGENTS.md GEMINI.md test/test_codelab_sync_and_contracts.rb].include?(f) }.select do |rel|
+    offending = files.reject { |f| %w[AGENTS.md GEMINI.md CLAUDE.md test/test_codelab_sync_and_contracts.rb].include?(f) }.select do |rel|
       full = File.join(REPO_ROOT, rel)
       File.file?(full) && File.read(full, encoding: "BINARY").include?(forbidden_prefix)
     end
     assert_empty offending, "Public repository MUST NOT contain internal #{forbidden_prefix} references! Found in: #{offending.join(', ')}"
+  end
+
+  # =========================================================================
+  # 8. Constitution §11: Zero Gemini API Keys (100% Vertex AI with ADC)
+  # =========================================================================
+  def test_constitution_bans_gemini_api_key_and_enforces_vertex_ai_adc
+    constitution = File.read(File.join(REPO_ROOT, "docs/CONSTITUTION.md"))
+    assert_match(/Zero Gemini API Keys/i, constitution,
+                 "docs/CONSTITUTION.md must codify Core Principle #11: Zero Gemini API Keys (100% Vertex AI with ADC)")
+
+    forbidden_files = %w[
+      .env.dist
+      blog/compose.yaml
+      blog/compose.prod.yaml
+      blog/lib/nanobanana.rb
+      blog/app/controllers/statuses_controller.rb
+      blog/app/views/workshop/alerts/_ai_status.html.erb
+      workshop/CODELAB.md
+      workshop/SKELETON.md
+      workshop/skeleton.yaml
+    ]
+
+    forbidden_files.each do |rel_path|
+      full = File.join(REPO_ROOT, rel_path)
+      next unless File.exist?(full)
+      content = File.read(full)
+      refute_match(/\bGEMINI_API_KEY\b/, content,
+                   "#{rel_path} MUST NOT reference GEMINI_API_KEY (violates Constitution §11 — use Vertex AI via ADC)")
+    end
+  end
+
+  # =========================================================================
+  # 9. REQ-10 (Septober #175): Zero Personal Emails in Public Configs/Tests
+  # =========================================================================
+  def test_no_personal_emails_in_public_configs_or_tests
+    personal_emails = %w[
+      ricc@google.com
+      emiliano.dellacasa@gmail.com
+      palladiusbonton@gmail.com
+      riccardo.carlesso@gmail.com
+      riccardo.and.kate@gmail.com
+      rubycon.italy@gmail.com
+    ]
+    pattern = Regexp.union(personal_emails)
+
+    tracked = `git -C #{REPO_ROOT} ls-files '*.json' '*.yml' '*.yaml' '.env.dist' 'justfile' 'bin/*' 'blog/db/*' 'blog/test/*' 'test/*'`.lines.map(&:strip)
+    tracked.reject! { |f| f == "test/test_codelab_sync_and_contracts.rb" }
+
+    offending = tracked.select do |rel_path|
+      full = File.join(REPO_ROOT, rel_path)
+      File.file?(full) && File.binread(full).force_encoding("UTF-8").scrub("").match?(pattern)
+    end
+
+    assert_empty offending,
+                 "Public config/JSON/YAML/test files MUST NOT expose personal email addresses (#{personal_emails.join(', ')})! Found in: #{offending.join(', ')}"
+  end
+
+  # =========================================================================
+  # 10. Constitution §12: Harness-Agnostic Agent Instructions
+  # =========================================================================
+  def test_harness_instruction_files_are_symlinks_to_agents_md
+    %w[GEMINI.md CLAUDE.md].each do |name|
+      path = File.join(REPO_ROOT, name)
+      assert File.symlink?(path), "#{name} must be a symlink, never a copy (Constitution §12)"
+      assert_equal "AGENTS.md", File.readlink(path), "#{name} must point to AGENTS.md"
+    end
+  end
+
+  def test_harness_skill_directories_are_symlinks_to_skills
+    %w[.claude/skills .agents/skills].each do |rel|
+      path = File.join(REPO_ROOT, rel)
+      assert File.symlink?(path), "#{rel} must be a symlink to skills/ (Constitution §12)"
+      assert_equal File.realpath(File.join(REPO_ROOT, "skills")), File.realpath(path),
+                   "#{rel} must resolve to the repository's skills/ directory"
+    end
+  end
+
+  # =========================================================================
+  # 11. DevSite sync must not drop metadata that exists only on the destination
+  # =========================================================================
+  def test_sync_preserves_destination_only_step_metadata_and_frontmatter
+    require "tmpdir"
+    require "open3"
+
+    Dir.mktmpdir do |dir|
+      dest = File.join(dir, "index.lab.md")
+      File.write(dest, <<~MD)
+        ---
+        id: example-codelab
+        ---
+
+        # Rails 8 on Google Cloud: From Zero to AI
+
+        ## Introduction
+        Duration: 05:00
+
+        Stale introduction text.
+
+        ## Step 0: An older title for this step
+        Duration: 10:00
+
+        Destination_Only_Flag: True
+
+        Stale step text.
+      MD
+
+      2.times do |run|
+        _out, err, status = Open3.capture3({ "DEVSITE_CODELAB_PATH" => dest }, "ruby",
+                                           File.join(REPO_ROOT, "bin", "sync_devsite_codelab.rb"))
+        assert status.success?, "sync run #{run + 1} failed: #{err}"
+
+        synced = File.read(dest)
+        assert synced.start_with?("---\nid: example-codelab\n---\n"), "destination frontmatter must survive a sync"
+        refute_includes synced, "Stale step text.", "the body must be replaced by CODELAB.md"
+
+        step0 = synced[/^## Step 0:.*?(?=^## Step 1:)/m]
+        refute_nil step0, "synced file must contain Step 0 followed by Step 1"
+        assert_equal 1, step0.scan("Destination_Only_Flag: True").size,
+                     "run #{run + 1}: the destination-only line must stay under Step 0, exactly once"
+        assert_equal 1, synced.scan("Destination_Only_Flag: True").size,
+                     "run #{run + 1}: the destination-only line must not leak into other steps"
+        assert_operator step0.index("Destination_Only_Flag: True"), :<, step0.index("### 1. Prerequisites Checklist"),
+                        "the destination-only line must sit before the step's first sub-heading"
+        refute_includes step0, "Duration: 10:00", "a key the source already states must not be duplicated"
+      end
+    end
   end
 end
 

@@ -1,6 +1,6 @@
 <!-- ⚠️ AGENT WARNING: This file (CODELAB.md) and SKELETON.md must be kept in sync at all times. A change to one requires a change to the other! -->
-<!-- 📜 Adheres to docs/CONSTITUTION.md (v1.1.0) -->
-<!-- 🏷️ Codelab Version: 2.2.2 -->
+<!-- 📜 Adheres to docs/CONSTITUTION.md (v1.5.0) -->
+<!-- 🏷️ Codelab Version: 2.4.0 -->
 # Rails 8 on Google Cloud: From Zero to AI
 
 ## Introduction
@@ -62,11 +62,15 @@ Before we begin, ensure you have the following tools available in your environme
 - **Git (2.30+):** (`git --version`) for version control, branching, and cloning the repository.
 - **[Google Cloud SDK](https://cloud.google.com/sdk/docs/install) (`gcloud` CLI):** Installed and up to date.
 - **[Terraform](https://developer.hashicorp.com/terraform/install)** CLI (1.5+): For declarative infrastructure provisioning.
-- **[`docker`](https://docs.docker.com/get-started/get-docker/)** & **[`docker-compose`](https://docs.docker.com/compose/)**: Installed and running locally.
-- **Ruby `3.4.5`:** (`ruby -v` — pinned by `blog/.ruby-version`; ask your AI harness to install `3.4.5` if missing). Rails 8 is declared in the `Gemfile` and installed automatically by `bundle install`.
+- **[`docker`](https://docs.docker.com/get-started/get-docker/)** & **[`docker-compose`](https://docs.docker.com/compose/)**: Installed and running locally. *(Fast-Track Tip: Using **Docker Compose**, **VS Code DevContainers** (`.devcontainer/devcontainer.json`), or **Google Cloud Shell** gets you running in `< 2 minutes` without compiling Ruby on your host!)*
+- **Ruby `3.4.5`:** (`ruby -v` — pinned by `blog/.ruby-version`; pre-installed inside our Docker Compose & DevContainer images, or ask your AI harness to install `3.4.5` if running natively on host). Rails 8 is declared in the `Gemfile` and installed automatically by `bundle install`.
 - **Google Antigravity 2.0:** Your autonomous AI pair programming assistant ([Download Google Antigravity 2.0](https://antigravity.google/download)). You'll login with your personal Gmail — no API token needed.
 
 ### 2. Configure Environment Variables, Dedicated `gcloud` Profile & ADC
+
+> ⚠️ **Warning for Google Cloud Shell & Pre-Configured Workshop VMs: NEVER run `gcloud init`!**
+> If you are running inside **Google Cloud Shell**, a **Qwiklabs / CloudVLab VM**, or a **pre-provisioned Antigravity workshop workstation**, your Google Cloud credentials are already active (and you do **not** need to open a nested Incognito window or Cloud Shell inside the VM).
+> **Do NOT run interactive `gcloud init`** — its multi-step interactive prompts (`[1] Re-initialize configuration`, numbered project/region menus) will hang autonomous AI agents or overwrite pre-configured workshop credentials. Always use the non-interactive `gcloud config set` commands below!
 
 First, export your core workshop environment variables (`GOOGLE_CLOUD_ACCOUNT`, `GOOGLE_CLOUD_PROJECT`, `GOOGLE_CLOUD_REGION`) before running any `gcloud` commands:
 
@@ -134,6 +138,10 @@ cd rails8-app-on-gcp
 
 Open this directory in **Google Antigravity**. Antigravity will automatically inspect the repository, read `AGENTS.md`, and stand by as your pair programmer.
 
+> 🧰 **Already have a coding harness you like? Keep it.**
+> Claude Code, Codex, Gemini CLI and Cursor work too: `CLAUDE.md` and `GEMINI.md` are symlinks to `AGENTS.md`, and the repo's skills are linked under `.claude/skills` and `.agents/skills`. Use the same prompt below.
+> No harness yet? [Download Antigravity](https://antigravity.google/download) and sign in with your personal Gmail account: no API key and no subscription needed to start.
+
 Once inside, open the prompt box and kick off your pairing session with this prompt:
 
 ```text
@@ -156,9 +164,9 @@ If the agent stops with a quota message, work down this ladder — the first two
    ![Antigravity model selector — switch between Gemini, Claude and GPT-OSS pools](assets/images/antigravity_model_selector.png)
 
 2. **Pick a Flash model instead of Pro.** Rate limits correlate with how much work the agent does per request, so a lighter model stretches what is left.
-3. **Use the [Antigravity CLI](https://antigravity.google/download) with your own Gemini API key.** Bring-your-own-key is **not supported in the Antigravity IDE** — the CLI is the documented alternative. Create a free key in [Google AI Studio](https://aistudio.google.com/apikey) (needs a project but **no billing account**), then download and configure the Antigravity CLI.
+3. **Use the [Antigravity CLI](https://antigravity.google/download) with your own key.** Bring-your-own-key is **not supported in the Antigravity IDE** — the CLI is the documented alternative. Create a free key in [Google AI Studio](https://aistudio.google.com/apikey) (needs a project but **no billing account**), then download and configure the Antigravity CLI. *(Note: this key is strictly for the external CLI harness — per Constitution §11, our Rails 8 application code never uses static API keys and authenticates 100% via keyless Vertex AI ADC!)*
 4. **Wait, or [upgrade](https://gemini.google/subscriptions/).** Free-tier quota refreshes **weekly** (the error message states your reset date). Google AI Pro/Ultra is the only documented way to raise the baseline inside the desktop app; those plans refresh every five hours and can spend purchased AI credits on overage.
-5. *While this is an Antigravity workshop, most AI coding harnesses should also work — just point yours at the `AGENTS.md` and `skills/` directory in the repo.*
+5. *Any other AI coding harness works too: the repo ships `AGENTS.md` (also linked as `CLAUDE.md` and `GEMINI.md`) and a `skills/` directory.*
 
 ### 6. Automated Step 0 Validation
 
@@ -176,13 +184,21 @@ just workshop-eval 0
 
 ### 1. Initialize `.env` & Run Automated Pre-Flight Diagnostics Suite
 
-First, create your `.env` file from the documented `.env.dist` template and populate your `GOOGLE_CLOUD_PROJECT` and `GOOGLE_CLOUD_ACCOUNT` variables:
+First, create your `.env` file from the documented `.env.dist` template (also symlinked as `.env.example` for convenience) and populate your `GOOGLE_CLOUD_PROJECT`, `GOOGLE_CLOUD_REGION`, and `GOOGLE_CLOUD_ACCOUNT` variables:
 
 ```bash
-cp .env.dist .env
+cp .env.dist .env   # (or: cp .env.example .env)
 # Edit .env (or populate it from your exported shell variables) and load it:
 set -a && source .env && set +a
 ```
+
+> 📋 **What lives inside `.env`? (Loaded automatically by `dotenv-rails` & Docker Compose)**
+> - `GOOGLE_CLOUD_ACCOUNT`: Your Google email (used for Billing checks, Terraform IAM bindings, and seeded Blog Admin login).
+> - `GOOGLE_CLOUD_PROJECT`: Your active GCP Project ID (used by Terraform, ActiveStorage GCS, and Vertex AI ADC).
+> - `GOOGLE_CLOUD_REGION`: Deployment region for Cloud Run, Cloud SQL, and GCS (default `europe-west1`).
+> - `GOOGLE_CLOUD_LOCATION`: Vertex AI endpoint location (default `global`).
+> - `PORT`: Optional local HTTP port override (default `3000` locally, `8080` on Cloud Run).
+> - *Security Note (Constitution §11):* Never add static Gemini API keys to `.env` — the app authenticates to Vertex AI strictly via keyless Application Default Credentials (ADC)!
 
 Now run the comprehensive pre-flight diagnostics suite before launching cloud infrastructure:
 ```bash
@@ -272,16 +288,25 @@ just compose-up
 ```
 
 <details>
-<summary>⚙️ Optional: Running Native Host Ruby 3.4.5 via rbenv</summary>
+<summary>⚙️ Optional: Running Native Host Ruby 3.4.5 via rbenv (Instead of Docker / DevContainers)</summary>
 
-If you also want to run Rails CLI commands natively on your host shell (`bin/rails test`, etc.) outside Docker containers, ensure `rbenv` is initialized in your shell (`eval "$(rbenv init - bash)"`) so Ruby `3.4.5` is used instead of system Ruby:
-```bash
-cd blog
-eval "$(rbenv init - bash)"   # or: eval "$(rbenv init - zsh)"
-ruby -v                       # must print 3.4.5
-bundle install
-bin/rails db:prepare db:seed
-```
+> 💡 **Fast-Track Reminder:** Because `just compose-up` (or opening the repo in **VS Code DevContainers** via `.devcontainer/devcontainer.json`) already provides a pre-built Ruby `3.4.5` container, **you do NOT need to compile Ruby on your host machine to complete this workshop!**
+
+If you still want to run Rails CLI commands natively on your host shell (`bin/rails test`, etc.) outside Docker containers:
+1. First install the required native C/YAML build headers (prevents `psych` / `libyaml` compilation errors during `rbenv install` and `bundle install`):
+   ```bash
+   # Debian / Ubuntu / Google Cloud Shell / gLinux:
+   sudo apt-get update && sudo apt-get install -y \
+     build-essential libssl-dev libreadline-dev zlib1g-dev libyaml-dev libffi-dev
+   ```
+2. Initialize `rbenv` in your standard `bash` or `zsh` shell (or `rbenv init - fish | source` if you use `fish`) so Ruby `3.4.5` is active instead of system Ruby:
+   ```bash
+   cd blog
+   eval "$(rbenv init - bash)"   # or: eval "$(rbenv init - zsh)"
+   ruby -v                       # must print 3.4.5
+   bundle install
+   bin/rails db:prepare db:seed
+   ```
 </details>
 
 ### 2. 🌱 Smart Seed Auto-Discovery & Admin Bootstrap (Issue #21 & #25)
@@ -318,6 +343,7 @@ The application, local Mailpit SMTP server, and Adminer database viewer are now 
 3. **Observe the Visual Telemetry Badges:**
    - Notice the yellow environment banner and badges in the UI: `Notice: Ephemeral Database Active (POSTGRESQL)` and `[EPHEMERAL DB / STORAGE] 💾 Local`.
    - Notice the post watermark: The 🏠 stamp (`nanobanana_stamp_local.png` in the bottom-right corner of the cover image). This provides immediate visual confirmation that your assets and database are currently bound to ephemeral local storage.
+   - Create a post **without** a cover image and wait a few seconds: the app attaches a bundled placeholder poster (`nanobanana_fake_cover.png`), not an AI-generated one. This is expected: the Docker Compose containers hold no Google credentials, so the app skips Vertex AI instead of failing (Constitution §6 and §11). The real AI poster arrives in Step 7, on Cloud Run.
 
 ![Local blog homepage displaying ephemeral telemetry notices and badges](assets/images/step_2_homepage_ephemeral.png)
 
@@ -408,11 +434,12 @@ You should see progress output similar to this:
 >    just project-status   # grants storage.admin, logging.logWriter, artifactregistry.writer, cloudbuild.builds.builder
 >    ```
 >    `just workshop-test` also reports this now, so it is worth re-running if the deploy keeps failing.
+> 3. **Updating `Gemfile` / `google-cloud-*` Gems or Speeding Up Docker Builds:** If you add or bump gems on macOS/Windows, run `bundle lock --add-platform x86_64-linux` so Cloud Build's Linux container resolves precompiled native gems cleanly alongside Rails 8 Propshaft and Psych 5 (`libyaml-dev`). For faster repeated builds with Artifact Registry Docker layer caching (`--cache-from`), see `cloudbuild.yaml` and `bin/cloudbuild-submit`.
 
 
 During deployment:
 1. Cloud Run builds your Rails container image.
-2. It assigns a public, secure TLS domain: `https://blog-[hash]-[region].a.run.app`.
+2. It assigns a public HTTPS endpoint (`https://blog-[hash]-[region].a.run.app`) secured with a Google-managed TLS certificate.
 3. Traffic begins routing to Puma on port 8080.
 
 ### 3. ✨ The Early WOW Moment
@@ -699,20 +726,19 @@ gcloud secrets list --filter="name:rails-"
 <!-- TODO this should be automateable! -->
 ![Google Cloud Secret Manager Console listing configured application secrets](assets/images/secret_manager_secrets_list.png)
 
-#### 🔑 Syncing `master.key` & `credentials.yml.enc` (Atomic Key Pairing)
+#### 🔑 Syncing `master.key` & `credentials.yml.enc` (Atomic Key Pairing & Runtime Injection)
 
-In Rails, `blog/config/master.key` and `blog/config/credentials.yml.enc` are an indivisible cryptographic pair — a `master.key` is useless if `credentials.yml.enc` was encrypted with someone else's key (`ActiveSupport::MessageEncryptor::InvalidMessage`). Run `bin/ensure_workshop_credentials.rb --sync-gcp` to verify that your local `master.key` can decrypt `credentials.yml.enc` (and automatically regenerate + push a fresh version to Secret Manager if needed):
+In Rails 8, `blog/config/master.key` (ignored by git) decrypts `blog/config/credentials.yml.enc` (committed to git) at boot. They form an indivisible cryptographic pair — if Cloud Run boots without a matching `RAILS_MASTER_KEY`, Rails crashes immediately with `ActiveSupport::MessageEncryptor::InvalidMessage`.
+
+Run `bin/ensure_workshop_credentials.rb --sync-gcp` to verify that your local `master.key` decrypts `credentials.yml.enc` and sync it to Secret Manager (`rails-master-key`):
 
 ```bash
 ruby bin/ensure_workshop_credentials.rb --sync-gcp
 ```
 
-> 🧪 **Playground: Want to create a custom secret just to see how easy it is?**
-> Secret Manager isn't just for Rails! You can create any secret in one simple CLI command:
-> ```bash
-> echo -n "MySuperSecretValue123!" | gcloud secrets create workshop-fun-secret --data-file=-
-> echo "✨ Created workshop-fun-secret in Secret Manager! 🪄"
-> ```
+> 🛡️ **Dev vs. Production Secret Injection on Cloud Run:**
+> - **Quick Dev / CLI Testing:** Pass the key directly via `--set-env-vars="RAILS_MASTER_KEY=$(cat config/master.key)"`.
+> - **Enterprise Production (Step 6):** Mount the secret directly from Google Cloud Secret Manager at container boot using `--set-secrets="RAILS_MASTER_KEY=rails-master-key:latest"` so plaintext keys never appear in deployment logs or shell history!
 
 
 ### 4. Verifying Secret Accessor Permissions
@@ -876,23 +902,23 @@ export RAILS_MASTER_KEY="${RAILS_MASTER_KEY:-$(cat config/master.key 2>/dev/null
 export DB_PASSWORD=$(gcloud secrets versions access latest --secret=rails-db-password)
 export CLOUDSQL_INSTANCE_CONNECTION_NAME="${GOOGLE_CLOUD_PROJECT}:${GOOGLE_CLOUD_REGION}:${SQL_INSTANCE_NAME}"
 
-# 2. Database credentials & GCS attachments
+# 2. Database credentials & GCS attachments (Zero Gemini API Keys per Constitution §11!)
 export DB_USER="rails_user"
 export DB_NAME="rails_production"
 export GCS_BUCKET="${GCS_BUCKET}"
 export ACTIVE_STORAGE_SERVICE="google"
 export GOOGLE_CLOUD_ACCOUNT="${GOOGLE_CLOUD_ACCOUNT:-$(gcloud config get-value account)}"
-export GEMINI_API_KEY="${GEMINI_API_KEY:-dummy-key}"
 
 # 3. Deploy the full multi-container sidecar architecture to Cloud Run
 gcloud run compose up compose.prod.yaml \
   --region=$GOOGLE_CLOUD_REGION
 
-# 4. Bind our custom Cloud Run Service Account ($RUN_SA)
+# 4. Bind our custom Cloud Run Service Account ($RUN_SA) and mount RAILS_MASTER_KEY from Secret Manager
 # (public access is already in place from your Step 3 deploy; no extra flag needed)
 gcloud run services update blog \
   --region=$GOOGLE_CLOUD_REGION \
-  --service-account=$RUN_SA
+  --service-account=$RUN_SA \
+  --set-secrets="RAILS_MASTER_KEY=rails-master-key:latest"
 ```
 
 ![Google Cloud Run Console Containers tab displaying the 3 sidecar containers](assets/images/step6_cloud_run_three_containers.png)
@@ -942,11 +968,20 @@ With Solid Queue running in a dedicated container and Google Cloud Storage activ
 Good news: **this functionality is already fully implemented in the codebase!** You don't need to write any code — your task here is to trigger and observe an asynchronous cloud GenAI pipeline in action.
 
 #### 🧠 How it Works Behind the Scenes
-- **Authentication:** Zero API keys required! It uses **Application Default Credentials** (`roles/aiplatform.user` on Vertex AI) automatically via the Cloud Run runtime service account. (Alternatively, if `GEMINI_API_KEY` is provided, it calls the Gemini API directly).
+- **Authentication (Zero API Keys — Constitution §11):** Static Gemini API keys are strictly banned! On Cloud Run the app authenticates to **Vertex AI** with keyless **Application Default Credentials (ADC)**: the `rails-cloudrun-sa` service account, granted `roles/aiplatform.user`. Rails run directly on your host can use `gcloud auth application-default login` the same way. The local Docker Compose stack holds no credentials, which is why Step 2 showed the placeholder poster.
 - **The Pipeline:** When an article is created without a cover image, an `after_commit` callback enqueues `GenerateCoverImageJob` into **Solid Queue**.
 - **Model:** It prompts Google's multimodal model (**Gemini 2.5 Flash Image** / Imagen on Vertex AI) to generate an authentic vintage 1960s Italian film poster (*"Locandina di un film 1960"*) complete with a cameo banana and a shiny ruby "8".
 - **Dynamic Provenance Watermark:** Uses `libvips` to dynamically stamp a visual badge on the corner (colorful cloud stamp on GCS).
 - **Turbo Stream Hot-Swap:** When the image is attached, `Turbo::StreamsChannel.broadcast_refresh_to(post)` updates the reader's browser live without a manual page reload!
+
+> 🔐 **Verify Vertex AI IAM Permissions (`roles/aiplatform.user`):**
+> Terraform grants `roles/aiplatform.user` to `rails-cloudrun-sa` in Step 1. If you ever see `403 PERMISSION_DENIED` on Vertex AI in your worker logs, verify or idempotently bind the role with:
+> ```bash
+> export RUN_SA="rails-cloudrun-sa@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com"
+> gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
+>   --member="serviceAccount:$RUN_SA" \
+>   --role="roles/aiplatform.user"
+> ```
 
 ![NanoBanana AI Asynchronous Architecture Sequence Diagram](assets/images/nanobanana_sequence_diagram.png)
 
@@ -986,9 +1021,7 @@ You can trigger it in two ways:
   bin/rails runner 'Post.create!(title: "Serverless Architecture with Ruby on Rails 8", body: "Exploring asynchronous AI pipelines with Solid Queue and NanoBanana!")'
   ```
 
-Wait ~15–30 seconds: watch the Solid Queue worker logs in Cloud Run. The vintage poster will appear directly on your post!
-
-> 📸 **TODO(riccardo): add screenshot of a blog post with an AI-generated vintage 1960s Italian movie poster featuring a cameo banana and ruby 8**
+Wait ~15–30 seconds: watch the Solid Queue worker logs in Cloud Run. The vintage poster will appear directly on your post, complete with the colorful Cloud GCS provenance stamp (`nanobanana_stamp_cloud.png`) in the bottom-right corner!
 
 ---
 
@@ -1072,8 +1105,6 @@ end
 exit
 ```
 
-> 📸 **TODO(riccardo): add screenshot of the interactive Rails console executing the GCS Treasure Hunt snippet and rescuing orphaned ActiveStorage blobs**
-
 Refresh your blog: the photo uploaded during Step 4's Stateless Shock is resurrected and permanently attached to your Cloud SQL post!
 
 ### 4. Automated Step 7 Validation
@@ -1119,6 +1150,9 @@ Now that you have mastered the canonical reference architecture, choose your gra
      iap_allowed_users = [var.google_cloud_account]
      ```
 
+> ⚠️ **Local Simulation (`IAP_MOCK_EMAIL`) vs. Real Production IAP:**
+> For local development and automated tests, `IapAuthenticatable` supports `ENV["IAP_MOCK_EMAIL"]` (e.g. `simulated-iap-account@example.com`). When active, the UI displays an explicit warning banner: `⚠️ This is a fake IAP login based on ENV[IAP_MOCK_EMAIL] — do NOT use in prod!!!` Never set `IAP_MOCK_EMAIL` in `compose.prod.yaml` or production Cloud Run!
+
 ![Login recognized by IAP banner](assets/images/iap_login_banner.png)
 
 ---
@@ -1129,8 +1163,6 @@ Now that you have mastered the canonical reference architecture, choose your gra
 * **How it Works:**
   - Configure `blog/config/environments/production.rb` to emit structured JSON logs with GCP trace labels.
   - Trigger an intentional test exception and watch Google Cloud Error Reporting group and notify you instantly.
-
-> 📸 **TODO(riccardo): add screenshot of Google Cloud Error Reporting showing grouped production exceptions and Cloud Logging structured JSON payload with trace labels**
 
 ---
 
@@ -1145,15 +1177,11 @@ Now that you have mastered the canonical reference architecture, choose your gra
   - Add the `neighbor` gem to `blog/Gemfile` and generate text embeddings with Gemini (`text-embedding-004`) on `Post#after_save`.
   - Perform cosine distance queries (`<=>`) to power a semantic search bar with Turbo Streams!
 
-> 📸 **TODO(riccardo): add screenshot of the live blog semantic search bar returning conceptual matches with cosine similarity scores**
-
 ---
 
 ### ⚡ Quest 4: SEO & Performance Audit Assistant
 * **Difficulty:** Easy / Fun (Developer Experience)
 * **The Goal:** Audit Core Web Vitals, Largest Contentful Paint (LCP), and Flesch-Kincaid / Fog readability indices using Antigravity and Speedgrapher tools.
-
-> 📸 **TODO(riccardo): add screenshot of Speedgrapher / Lighthouse SEO and Core Web Vitals audit summary**
 
 ---
 
@@ -1269,16 +1297,22 @@ You have built and deployed a production-grade, enterprise-ready Rails 8 applica
 
 To avoid ongoing charges after completing the workshop, make sure to clean up your Google Cloud resources! Choose the approach that best fits your environment:
 
-#### Option 1: Terraform Teardown (Recommended / Default 🟢)
-> Use this option if you are using an existing or shared Google Cloud project where other resources or data live. It surgically destroys **only** the resources provisioned during this workshop (Cloud Run, Cloud SQL, Secret Manager, GCS buckets), leaving the rest of your project untouched.
+#### Option 1: Terraform & CLI Surgical Teardown (Recommended for Shared Projects 🟢)
+> Use this option if you are using an existing or shared Google Cloud project where other resources or data live. It surgically destroys **only** the resources provisioned during this workshop (Cloud Run services/jobs, Cloud SQL instance, Artifact Registry images, Secret Manager secrets, and GCS buckets), leaving the rest of your project untouched.
 
 ```bash
+# 1. Delete the Cloud Run service and migration job created via gcloud CLI
+gcloud run services delete blog --region=$GOOGLE_CLOUD_REGION --quiet 2>/dev/null || true
+gcloud run jobs delete rails-migrate --region=$GOOGLE_CLOUD_REGION --quiet 2>/dev/null || true
+
+# 2. Destroy all Terraform-provisioned infrastructure (Cloud SQL, GCS buckets, Secrets, Artifact Registry)
 cd iac
-terraform destroy -auto-approve
+terraform destroy -auto-approve -var="project_id=${GOOGLE_CLOUD_PROJECT}" -var="region=${GOOGLE_CLOUD_REGION}"
+cd ..
 ```
 
 #### Option 2: Total Project Deletion (Leave Zero Trace 🌪️)
-> Use this option if you created a dedicated workshop project (e.g., using workshop credits or a sandbox) and want to guarantee that **zero trace** remains—including logs, metadata, service accounts, and billing links.
+> Use this option if you created a dedicated workshop project (e.g., using workshop credits or a sandbox) and want to guarantee that **zero trace** and **$0 ongoing billing** remain—instantly terminating Cloud SQL, Cloud Run, Artifact Registry, GCS buckets, and billing links:
 
 ```bash
 gcloud projects delete $GOOGLE_CLOUD_PROJECT --quiet
@@ -1286,4 +1320,4 @@ gcloud projects delete $GOOGLE_CLOUD_PROJECT --quiet
 
 ---
 
-*Codelab Version: v2.2.2 (2026-10-01) — Synchronized across GitHub (`workshop/CODELAB.md`) & Google DevSite (`rails8-on-google-cloud`). See [`workshop/CODELAB_CHANGELOG.md`](https://github.com/palladius/rails8-app-on-gcp/blob/main/workshop/CODELAB_CHANGELOG.md).*
+*Codelab Version: v2.4.0 (2026-11-16) — Synchronized across GitHub (`workshop/CODELAB.md`) & Google DevSite (`rails8-on-google-cloud`). See [`workshop/CODELAB_CHANGELOG.md`](https://github.com/palladius/rails8-app-on-gcp/blob/main/workshop/CODELAB_CHANGELOG.md).*

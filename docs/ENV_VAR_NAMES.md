@@ -31,10 +31,10 @@
 | `ACTIVE_STORAGE_SERVICE` | Rails ActiveStorage service selector (`local`, `gcs_local`, `google`) | Controls whether ActiveStorage uploads to local disk or Google Cloud Storage. |
 | `GCS_BUCKET_NAME` | Cloud Storage bucket name for ActiveStorage blobs | Storage bucket name for production and cloud-connected development. |
 | `GCS_SIGNER_SA_EMAIL` | Service Account email for IAM blob URL signing | Used by `iam: true` in `config/storage.yml` when generating short-lived signed URLs via Cloud Run metadata server or local development. |
-| `GEMINI_API_KEY` | Gemini AI Developer API key | Direct API key for Google AI Studio / Gemini API. If omitted, the app uses Vertex AI via ADC (`GOOGLE_CLOUD_PROJECT`). |
-| `NANOBANANA_MODEL` | Gemini / Imagen model version string | Specifies which generative AI model to invoke (e.g., `gemini-2.5-flash`, `imagen-3.0-generate-002`). |
+| `NANOBANANA_MODEL` | Gemini / Imagen model version string | Specifies which generative AI model to invoke on Vertex AI (e.g., `gemini-2.5-flash-image`). |
 | `AUDIO_LANGUAGES` | Comma-separated languages for AI podcastifier (e.g. `it,en`) | Configures audio generation pipelines. |
 | `IAP_ALLOWED_USERS` | Comma-separated allowlist of emails for Identity-Aware Proxy | Application-level Zero-Trust guard for Cloud Run IAP headers. |
+| `IAP_MOCK_EMAIL` | Local-only simulated IAP user email (e.g. `simulated-iap-account@example.com`) | Simulates `X-Goog-Authenticated-User-Email` in local dev/test; displays an explicit fake-IAP warning banner and MUST NEVER be set in production. |
 | `RAILS8_ENV_LAUNCH_MODE` | Human-readable badge text override | Displayed in application footer and `/status` page to provide clear environment context. |
 | `RAILS_MASTER_KEY` | Decryption key for Rails encrypted credentials | Standard Rails credential decryption key when `config/master.key` is not mounted. |
 
@@ -46,6 +46,7 @@ The following variables are **STRICTLY PROHIBITED**. The diagnostics test (`just
 
 | Prohibited Variable | Status | Replacement | Why it is banned |
 | :--- | :--- | :--- | :--- |
+| `GEMINI_API_KEY` | ❌ **BANNED** | Vertex AI ADC (`GOOGLE_CLOUD_PROJECT`) | Violates Constitution §11. Consumer AI Studio keys bypass IAM and override Cloud Run Service Account ADC, breaking background workers. |
 | `GCP_PROJECT_ID` | ❌ **BANNED** | `GOOGLE_CLOUD_PROJECT` | Non-standard. Conflicts with official Google Cloud SDKs and Terraform variables. |
 | `PROJECT_ID` | ❌ **BANNED** | `GOOGLE_CLOUD_PROJECT` | Ambiguous. Can collide with OS or CI project definitions. |
 | `GCP_EMAIL` | ❌ **BANNED** | `GOOGLE_CLOUD_ACCOUNT` | Ambiguous whether it represents a human account or service account. |

@@ -26,7 +26,7 @@ Implement an end-to-end authentication and identity architecture for Rails 8 on 
 
 ### 3. Terraform Infrastructure for Cloud IAP (`iac/iap.tf` & `iac/variables.tf`)
 - Add variable `enable_iap` (default: `false` to avoid unexpected Load Balancer idle costs).
-- Add variable `iap_allowed_users` (default: `["ricc@google.com", "emiliano.dellacasa@gmail.com", "changeme@gmail.com"]`).
+- Add variable `iap_allowed_users` (default: `["student@example.com", "admin@example.com", "devstar@gcplab.me"]`).
 - When `enable_iap = true`:
   - Provision `google_compute_region_network_endpoint_group` (Serverless NEG pointing to Cloud Run).
   - Provision `google_compute_backend_service` with `iap` configuration.

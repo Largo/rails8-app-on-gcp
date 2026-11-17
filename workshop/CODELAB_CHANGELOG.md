@@ -8,6 +8,31 @@ The current version in [`workshop/CODELAB_VERSION`](./CODELAB_VERSION) is embedd
 
 ---
 
+## [2.4.0] - 2026-11-16 (Constitution v1.5.0: Any Harness & Honest Local AI Story)
+
+- **Step 0 (Constitution §12)**: Any AI coding harness works. `CLAUDE.md` and `GEMINI.md` are symlinks to `AGENTS.md`, and the repo's skills are linked under `.claude/skills` and `.agents/skills`. Antigravity with a Gmail account stays the zero-cost default.
+- **Step 2 and Step 7 (Constitution §11)**: The codelab now says that the local Docker Compose stack holds no Google credentials, so a new post gets the bundled placeholder cover there; the AI-generated poster appears on Cloud Run in Step 7. Step 7 no longer claims that local development authenticates to Vertex AI out of the box.
+
+## [2.3.0] - 2026-10-08 (Daniel Strebel's Friction Log & Guillaume Laforge's Agentic `.md` Switcher)
+
+- **Constitution §11 & Step 6 / Step 7 (`P0-1` — Zero `GEMINI_API_KEY`)**:
+  - Abolished `GEMINI_API_KEY` across `workshop/CODELAB.md`, `workshop/SKELETON.md`, `blog/compose.prod.yaml`, and `blog/lib/nanobanana.rb`. All GenAI workloads authenticate exclusively via keyless Vertex AI Application Default Credentials (`GOOGLE_CLOUD_PROJECT` + `roles/aiplatform.user`).
+- **Step 0 (`REQ-01`, `REQ-02`)**:
+  - Added warning callout against running interactive `gcloud init` inside Cloud Shell or pre-configured workshop VMs.
+  - Highlighted Docker Compose, VS Code DevContainers (`.devcontainer/devcontainer.json`), and Cloud Shell as the `< 2 min` zero-compile fast-track, and documented native `libyaml-dev`/`libssl-dev` packages for optional host `rbenv` builds.
+- **Step 1 (`REQ-04`)**:
+  - Added `.env.example` symlink alias alongside `.env.dist` and documented `GOOGLE_CLOUD_PROJECT`, `GOOGLE_CLOUD_REGION`, `GOOGLE_CLOUD_LOCATION=global`, and `PORT`.
+- **Step 3 (`REQ-05`, `REQ-A6`)**:
+  - Added `bundle lock --add-platform x86_64-linux` and `cloudbuild.yaml` (`--cache-from`) troubleshooting guidance, and clarified HTTPS/TLS endpoint terminology.
+- **Step 5 & Step 6 (`REQ-03`, `REQ-A9`, `REQ-A10`)**:
+  - Removed distracting `workshop-fun-secret` playground snippet, explained `RAILS_MASTER_KEY` cryptographic pairing, and bound `--set-secrets="RAILS_MASTER_KEY=rails-master-key:latest"` in Step 6's `gcloud run services update blog`.
+- **Step 7, Step 8 & Conclusion (`REQ-06`, `REQ-07`, `REQ-08`, `P0-2`)**:
+  - Added explicit `roles/aiplatform.user` IAM binding check in Step 7, removed raw `TODO(riccardo)` placeholders, documented the `IAP_MOCK_EMAIL` fake-login warning banner in Step 8, and added surgical CLI + Terraform teardown commands in `Conclusion & Clean Up`.
+- **Visualizer & Static Build (`REQ-09` — Guillaume Laforge's `.md` Switcher & Agentic A11y)**:
+  - Added `📋 Copy Step .md`, `📄 View .md`, and `🤖 Full .md` buttons, `/codelab.md` and `/llms.txt` endpoints, `<link rel="alternate" type="text/markdown">`, and `<aside role="note" aria-label="AI Agent Instructions">`.
+
+---
+
 ## [2.2.2] - 2026-10-01 (Friction Log 4, `palladius/rails8-app-on-gcp#169`)
 
 - **Step 6 (Deploy 4)**: removed `--allow-unauthenticated` from the final `gcloud run services update blog ...` command. That flag belongs to `gcloud run deploy`; `services update` rejects it with `unrecognized arguments` and applies nothing, so `--service-account=$RUN_SA` was never set and the service kept running as the Default Compute SA. Public access already comes from the Step 3 deploy.

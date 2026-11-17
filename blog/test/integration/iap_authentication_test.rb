@@ -3,11 +3,11 @@ require "test_helper"
 class IapAuthenticationTest < ActionDispatch::IntegrationTest
   test "auto-authenticates and creates user when IAP header is present" do
     assert_difference("User.count", 1) do
-      get new_post_url, headers: { "X-Goog-Authenticated-User-Email" => "accounts.google.com:ricc@google.com" }
+      get new_post_url, headers: { "X-Goog-Authenticated-User-Email" => "accounts.google.com:student@example.com" }
     end
 
     assert_response :success
-    created_user = User.find_by(email_address: "ricc@google.com")
+    created_user = User.find_by(email_address: "student@example.com")
     assert_not_nil created_user
     assert_equal "iap", created_user.created_via
     assert_equal "Auto-generated as logged in from IAP allow listed users", created_user.description
@@ -34,21 +34,23 @@ class IapAuthenticationTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_url
   end
 
-  test "respects IAP_MOCK_EMAIL in test environment" do
-    ENV["IAP_MOCK_EMAIL"] = "emiliano.dellacasa@gmail.com"
+  test "respects IAP_MOCK_EMAIL in test environment and displays fake IAP warning banner" do
+    ENV["IAP_MOCK_EMAIL"] = "simulated-iap-account@example.com"
     begin
       assert_difference("User.count", 1) do
         get new_post_url
       end
       assert_response :success
-      assert_not_nil User.find_by(email_address: "emiliano.dellacasa@gmail.com")
+      assert_not_nil User.find_by(email_address: "simulated-iap-account@example.com")
+      assert_includes response.body, "This is a fake IAP login based on ENV[IAP_MOCK_EMAIL]"
+      assert_includes response.body, "do NOT use in prod"
     ensure
       ENV.delete("IAP_MOCK_EMAIL")
     end
   end
 
   test "blocks IAP user not in IAP_ALLOWED_USERS" do
-    ENV["IAP_ALLOWED_USERS"] = "ricc@google.com,palladiusbonton@gmail.com"
+    ENV["IAP_ALLOWED_USERS"] = "student@example.com,admin@example.com"
     begin
       assert_no_difference("User.count") do
         get new_post_url, headers: { "X-Goog-Authenticated-User-Email" => "accounts.google.com:unauthorized@example.com" }
@@ -60,13 +62,13 @@ class IapAuthenticationTest < ActionDispatch::IntegrationTest
   end
 
   test "allows IAP user in IAP_ALLOWED_USERS" do
-    ENV["IAP_ALLOWED_USERS"] = "ricc@google.com,palladiusbonton@gmail.com,riccardo.and.kate@gmail.com,riccardo.carlesso@gmail.com"
+    ENV["IAP_ALLOWED_USERS"] = "student@example.com,admin@example.com,allowed-user@example.com"
     begin
       assert_difference("User.count", 1) do
-        get new_post_url, headers: { "X-Goog-Authenticated-User-Email" => "accounts.google.com:riccardo.carlesso@gmail.com" }
+        get new_post_url, headers: { "X-Goog-Authenticated-User-Email" => "accounts.google.com:allowed-user@example.com" }
       end
       assert_response :success
-      assert_not_nil User.find_by(email_address: "riccardo.carlesso@gmail.com")
+      assert_not_nil User.find_by(email_address: "allowed-user@example.com")
     ensure
       ENV.delete("IAP_ALLOWED_USERS")
     end

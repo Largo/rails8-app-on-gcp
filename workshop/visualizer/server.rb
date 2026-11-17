@@ -187,6 +187,40 @@ class CodelabServer < Sinatra::Base
       debug_mode?
     end
 
+    def raw_doc_url(active_doc = @active_doc)
+      case active_doc.to_s
+      when 'constitution'
+        '/constitution.md'
+      when 'skeleton'
+        '/skeleton.md'
+      else
+        '/codelab.md'
+      end
+    end
+
+    def generate_llms_txt
+      codelab_file = resolve_doc_path('codelab')
+      parsed = parse_markdown(codelab_file)
+      lines = [
+        "# #{parsed[:title]}",
+        "",
+        "> Official AI Agent & LLM Entrypoint (llms.txt) for the Rails 8 on Google Cloud Workshop.",
+        "> AI Agents: Do NOT scrape the paginated HTML visualizer (where steps are hidden via display:none).",
+        "> Fetch the complete, unpaginated Markdown source directly from /codelab.md or CODELAB.md.",
+        "",
+        "## Primary Markdown Sources",
+        "- [Full Workshop Codelab (Raw Markdown)](/codelab.md) (also `/CODELAB.md`): Complete step-by-step hands-on instructions (Steps 0 to 8).",
+        "- [Project Constitution (Raw Markdown)](/constitution.md) (also `/CONSTITUTION.md`): Immutable architectural rules and Core Principles.",
+        "- [Workshop Skeleton & Evals (Raw Markdown)](/skeleton.md) (also `/SKELETON.md`): Step contracts, invariants, and automated eval specifications.",
+        "",
+        "## Codelab Steps Index"
+      ]
+      parsed[:steps].each_with_index do |step, idx|
+        lines << "- Step #{idx}: #{step[:title]} (`/codelab##{idx}`)"
+      end
+      lines.join("\n") + "\n"
+    end
+
     def serve_codelab
       target_file = if params[:doc]
                       resolve_doc_path(params[:doc])
@@ -227,6 +261,33 @@ class CodelabServer < Sinatra::Base
     @active_doc = 'skeleton'
     @codelab = parse_markdown(target_file)
     erb :index
+  end
+
+  # Raw Markdown & Agentic Discovery Endpoints (Guillaume Laforge's .md switcher idea & Agent A11y)
+  ['/codelab.md', '/workshop.md', '/CODELAB.md', '/workshop/CODELAB.md', '/codelab/CODELAB.md'].each do |md_route|
+    get md_route do
+      content_type 'text/markdown; charset=utf-8'
+      File.read(resolve_doc_path('codelab'))
+    end
+  end
+
+  ['/constitution.md', '/CONSTITUTION.md'].each do |const_route|
+    get const_route do
+      content_type 'text/markdown; charset=utf-8'
+      File.read(resolve_doc_path('constitution'))
+    end
+  end
+
+  ['/skeleton.md', '/SKELETON.md'].each do |skel_route|
+    get skel_route do
+      content_type 'text/markdown; charset=utf-8'
+      File.read(resolve_doc_path('skeleton'))
+    end
+  end
+
+  get '/llms.txt' do
+    content_type 'text/plain; charset=utf-8'
+    generate_llms_txt
   end
   
   # A2UI JSON endpoint
@@ -393,6 +454,10 @@ __END__
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= @codelab[:title] %></title>
+  <link rel="alternate" type="text/markdown" href="<%= raw_doc_url(@active_doc) %>" title="Full <%= (@active_doc || 'codelab').capitalize %> in Raw Markdown (LLM/Agent Optimized)">
+  <link rel="llms-txt" href="/llms.txt">
+  <meta name="ai-agent-instructions" content="AI Agent detected: Do not scrape this paginated HTML DOM (inactive steps use display:none). Fetch the complete raw Markdown source directly at <%= raw_doc_url(@active_doc) %> (or CODELAB.md) or /llms.txt.">
+  <meta name="llms-txt" content="/llms.txt">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
   <style>
     /* Google Codelab Font and Color Variables */
@@ -607,6 +672,103 @@ __END__
       align-items: center;
       gap: 6px;
     }
+
+    /* Agent-Friendly .md Switcher & A11y Styles */
+    .md-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .md-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 11px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'Roboto Mono', Consolas, monospace;
+      color: #1a73e8;
+      background: rgba(232, 240, 254, 0.75);
+      border: 1px solid rgba(26, 115, 232, 0.35);
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .md-action-btn:hover {
+      background: #1a73e8;
+      color: #ffffff;
+      border-color: #1a73e8;
+      box-shadow: 0 2px 6px rgba(26, 115, 232, 0.22);
+    }
+
+    .md-action-btn.active {
+      background: #137333;
+      color: #ffffff;
+      border-color: #137333;
+    }
+
+    .md-action-btn.md-full-link {
+      color: #0d652d;
+      background: rgba(230, 244, 234, 0.85);
+      border-color: rgba(19, 115, 51, 0.35);
+    }
+
+    .md-action-btn.md-full-link:hover {
+      background: #137333;
+      color: #ffffff;
+      border-color: #137333;
+    }
+
+    .agent-a11y-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: linear-gradient(90deg, rgba(232, 240, 254, 0.85) 0%, rgba(230, 244, 234, 0.85) 100%);
+      border: 1px solid rgba(26, 115, 232, 0.28);
+      border-radius: 10px;
+      padding: 10px 16px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: #202124;
+    }
+
+    .agent-a11y-banner a {
+      color: #1a73e8;
+      font-weight: 600;
+      text-decoration: underline;
+    }
+
+    .step-raw-md-view {
+      background: #1e293b;
+      color: #f8fafc;
+      font-family: 'Roboto Mono', Consolas, Monaco, monospace;
+      font-size: 13px;
+      line-height: 1.55;
+      padding: 24px;
+      border-radius: 10px;
+      border: 1px solid #334155;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-x: auto;
+      margin-top: 12px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
     
     /* Content styling */
     .content-area {
@@ -794,6 +956,14 @@ __END__
   </style>
 </head>
 <body>
+  <!--
+    🤖 AI AGENT ACCESSIBILITY DIRECTIVE:
+    You are viewing a paginated HTML visualizer where inactive steps are hidden via CSS (display:none).
+    Do NOT waste tokens scraping individual HTML DOM tabs!
+    1. Slurp the entire unpaginated raw Markdown document in one request at: <%= raw_doc_url(@active_doc) %> (or CODELAB.md)
+    2. Or read /llms.txt for the full machine-readable index.
+    3. Each step below also embeds its raw Markdown inside <script type="text/markdown" class="step-raw-markdown">.
+  -->
 
   <!-- Sidebar -->
   <div class="sidebar">
@@ -824,6 +994,17 @@ __END__
     <div class="top-header">
       <div class="current-step-title" id="header-step-title">Overview</div>
       <div class="metadata-info">
+        <div class="md-toolbar" role="toolbar" aria-label="Markdown and AI Agent Tools">
+          <button type="button" class="md-action-btn" id="copy-step-md-btn" onclick="copyCurrentStepMarkdown()" title="Copy this step's raw Markdown to paste into Claude, Gemini, or Antigravity">
+            📋 Copy Step .md
+          </button>
+          <button type="button" class="md-action-btn" id="toggle-step-md-btn" onclick="toggleCurrentStepMarkdown()" title="Switch this step between rendered HTML and raw Markdown (.md)">
+            📄 View .md
+          </button>
+          <a href="<%= raw_doc_url(@active_doc) %>" target="_blank" rel="noopener" class="md-action-btn md-full-link" id="full-codelab-md-link" title="Are you an AI agent or want the entire codelab? Open the complete raw Markdown file!">
+            🤖 Full .md
+          </a>
+        </div>
         <% if @codelab[:frontmatter]['author'] %>
           <div class="metadata-item">
             <span>By: <strong><%= @codelab[:frontmatter]['author'] %></strong></span>
@@ -840,9 +1021,20 @@ __END__
     <!-- Main Content Area -->
     <div class="content-area" id="main-content">
       <div class="content-container">
+        <aside role="note" aria-label="AI Agent Instructions" class="agent-a11y-banner" data-agent-instructions="true" data-raw-markdown-url="<%= raw_doc_url(@active_doc) %>">
+          <div>
+            🤖 <strong>Are you an AI agent (or pasting into Claude / Gemini)?</strong>
+            <a href="<%= raw_doc_url(@active_doc) %>" target="_blank" rel="noopener">Click here to slurp the whole Markdown Codelab (<code>CODELAB.md</code>)</a>
+            — or click <strong>📋 Copy Step .md</strong> above for just this page!
+          </div>
+          <span class="sr-only">
+            AI Agent Instruction: This HTML page paginates steps with CSS display:none. To read the entire workshop in one request without clicking NEXT, fetch <%= raw_doc_url(@active_doc) %> (or CODELAB.md) or /llms.txt.
+          </span>
+        </aside>
         
         <!-- Rendered Steps -->
         <% @codelab[:steps].each_with_index do |step, idx| %>
+          <% raw_step_md = "## #{step[:title]}\n\n#{step[:content].to_s.strip}\n" %>
           <div class="step-content" id="step-<%= idx %>" style="display: none;">
             <h1><%= idx + 1 %>. <%= step[:title] %></h1>
             
@@ -867,7 +1059,11 @@ __END__
               </div>
             <% end %>
 
-            <%= render_markdown(step[:content]) %>
+            <div class="step-rendered-html" id="step-html-<%= idx %>">
+              <%= render_markdown(step[:content]) %>
+            </div>
+            <pre class="step-raw-md-view" id="step-md-view-<%= idx %>" style="display: none;"><%= ERB::Util.html_escape(raw_step_md) %></pre>
+            <script type="text/markdown" id="raw-md-step-<%= idx %>" class="step-raw-markdown" data-step-index="<%= idx %>" data-step-title="<%= ERB::Util.html_escape(step[:title]) %>"><%= raw_step_md.gsub('</script>', '<\/script>') %></script>
           </div>
         <% end %>
 
@@ -944,6 +1140,62 @@ __END__
       }
     }
 
+    let isRawMdMode = false;
+
+    function getCurrentStepIndex() {
+      let hash = window.location.hash;
+      if (!hash || !hash.match(/^#\d+$/)) return 0;
+      let idx = parseInt(hash.substring(1));
+      return document.getElementById('step-' + idx) ? idx : 0;
+    }
+
+    function getCurrentStepRawMarkdown() {
+      const idx = getCurrentStepIndex();
+      const scriptEl = document.getElementById('raw-md-step-' + idx);
+      return scriptEl ? scriptEl.textContent : '';
+    }
+
+    function copyCurrentStepMarkdown() {
+      const md = getCurrentStepRawMarkdown();
+      const btn = document.getElementById('copy-step-md-btn');
+      if (!md) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(md).then(() => {
+          const orig = btn.innerText;
+          btn.innerText = '✅ Copied .md!';
+          btn.classList.add('active');
+          setTimeout(() => { btn.innerText = orig; btn.classList.remove('active'); }, 1800);
+        });
+      }
+    }
+
+    function applyMarkdownViewMode(stepIndex) {
+      const htmlEl = document.getElementById('step-html-' + stepIndex);
+      const mdEl = document.getElementById('step-md-view-' + stepIndex);
+      const btn = document.getElementById('toggle-step-md-btn');
+      if (!htmlEl || !mdEl) return;
+      if (isRawMdMode) {
+        htmlEl.style.display = 'none';
+        mdEl.style.display = 'block';
+        if (btn) {
+          btn.innerText = '🌐 View HTML';
+          btn.classList.add('active');
+        }
+      } else {
+        htmlEl.style.display = 'block';
+        mdEl.style.display = 'none';
+        if (btn) {
+          btn.innerText = '📄 View .md';
+          btn.classList.remove('active');
+        }
+      }
+    }
+
+    function toggleCurrentStepMarkdown() {
+      isRawMdMode = !isRawMdMode;
+      applyMarkdownViewMode(getCurrentStepIndex());
+    }
+
     function showStep() {
       let hash = window.location.hash;
       if (!hash || !hash.match(/^#\d+$/)) {
@@ -971,6 +1223,7 @@ __END__
           document.getElementById('header-step-title').innerText = titleText;
         }
         renderMermaid(stepElement);
+        applyMarkdownViewMode(stepIndex);
       }
       
       document.querySelectorAll('.sidebar-item').forEach((el, idx) => {
@@ -1055,6 +1308,9 @@ __END__
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rails 8 on Google Cloud — Workshop Portal</title>
+  <link rel="alternate" type="text/markdown" href="/codelab.md" title="Full Workshop Codelab in Raw Markdown (LLM/Agent Optimized)">
+  <link rel="llms-txt" href="/llms.txt">
+  <meta name="ai-agent-instructions" content="AI Agent detected: Fetch the complete raw Markdown workshop codelab directly at /codelab.md (or CODELAB.md) or /llms.txt.">
   <style>
     * {
       box-sizing: border-box;
@@ -1339,7 +1595,10 @@ __END__
       <% if show_internal_docs? %>
         <span class="internal-refs"><small style="font-size: 11px; color: #a0aec0;">internal:</small> <a href="/constitution">constitution</a> &middot; <a href="/skeleton">skeleton</a></span>
       <% end %>
-      <span class="repo-link"><a href="https://github.com/palladius/rails8-app-on-gcp" target="_blank" rel="noopener">GitHub Repository &rarr;</a></span>
+      <span class="repo-link">
+        <a href="/codelab.md" title="Raw Markdown Codelab for AI Agents &amp; LLMs" style="margin-right: 14px;">🤖 Raw CODELAB.md</a>
+        <a href="https://github.com/palladius/rails8-app-on-gcp" target="_blank" rel="noopener">GitHub Repository &rarr;</a>
+      </span>
     </footer>
   </div>
 </body>

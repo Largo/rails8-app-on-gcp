@@ -1,0 +1,19 @@
+{
+  "name": "Rails 8 on Google Cloud (Ruby 3.4.5)",
+  "dockerComposeFile": ["../blog/compose.yaml"],
+  "service": "web",
+  "workspaceFolder": "/rails",
+  "features": {
+    "ghcr.io/devcontainers/features/gcloud-cli:1": {},
+    "ghcr.io/devcontainers/features/terraform:1": {
+      "version": "1.6.6"
+    }
+  },
+  "forwardPorts": [3000, 8025, 8081],
+  "portsAttributes": {
+    "3000": { "label": "Rails 8 Blog (Puma)", "onAutoForward": "notify" },
+    "8025": { "label": "Mailpit Web UI", "onAutoForward": "silent" },
+    "8081": { "label": "Adminer Postgres UI", "onAutoForward": "silent" }
+  },
+  "postCreateCommand": "bin/rails db:prepare"
+}

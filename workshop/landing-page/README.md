@@ -32,7 +32,7 @@ You are building a production-grade, cloud-native blog platform with **Ruby on R
 ## 🌉 The Bridge: From Step -1 to Step 0
 
 ### Step -1 (Recap from Slides):
-You downloaded **Google Antigravity 2.0**, logged in with your Google account, and pointed Antigravity to this landing page. **You are in the right place!**
+You downloaded **Google Antigravity App**, logged in with your Google account, and pointed Antigravity to this landing page. **You are in the right place!**
 
 ### Step 0: The Local Environment Foundation ("La Valle delle Lacrime" Solved!)
 Before we touch the cloud, we need our local tools ready. You need:

@@ -1,7 +1,7 @@
 <%# 
   Pedagogical helper for Workshop Step 7 (Issue #18, #21 & #22).
   Warns the student when Nano Banana AI cover generation is running in Fake Fallback mode
-  because neither GEMINI_API_KEY nor Vertex AI credentials are available.
+  because Vertex AI Application Default Credentials are not available.
   Runs in 0ms without any slow network call.
 %>
 <% ai_available = Nanobanana.available? rescue false %>
@@ -26,14 +26,14 @@
       <div>
         <strong>Notice: Nano Banana AI Cover in Fake Fallback Mode</strong>
         <div style="font-size: 0.85rem; color: #b91c1c; margin-top: 2px;">
-          Neither <code>GEMINI_API_KEY</code> nor Vertex AI Application Default Credentials are configured.
+          Vertex AI Application Default Credentials (<code>GOOGLE_CLOUD_PROJECT</code> + ADC) are not configured.
         </div>
       </div>
     </div>
 
     <div>
       <a href="#ai-status-modal" 
-         onclick="alert('💡 Why is this happening?\n\nNano Banana generates vintage 1960s Italian movie posters for new posts.\n\nTo enable real live AI generation:\n1. Option A: set `GEMINI_API_KEY=\"AIza...\"` in your `.env` (Google AI Studio).\n2. Option B (Cloud-Native): run `gcloud auth application-default login` and set `GOOGLE_CLOUD_PROJECT` (Vertex AI).\n\nWithout either, the app gracefully falls back to the bundled fake cover image!'); return false;"
+         onclick="alert('💡 Why is this happening?\n\nNano Banana generates vintage 1960s Italian movie posters for new posts via Vertex AI.\n\nTo enable real live AI generation (keyless Enterprise ADC):\n1. Run `gcloud auth application-default login` locally (or attach `rails-cloudrun-sa` with `roles/aiplatform.user` on Cloud Run).\n2. Ensure `GOOGLE_CLOUD_PROJECT` is set.\n\nWithout Vertex AI ADC, the app gracefully falls back to the bundled fake cover image!'); return false;"
          style="
            background-color: #fee2e2;
            border: 1px solid #ef4444;

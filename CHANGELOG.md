@@ -2,6 +2,47 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.11] - 2026-11-16
+### Added
+- 🧰 **Any Coding Harness, per Constitution §12 (`CLAUDE.md`, `.claude/skills`, `.agents/skills`, `AGENTS.md`)**:
+  - Added `CLAUDE.md` as a symlink to `AGENTS.md` (like `GEMINI.md`), and `.claude/skills` and `.agents/skills` as symlinks to `skills/`, so Claude Code, Codex and Antigravity find the same directives and skills after `git clone`. Guarded by two contract tests.
+  - Codelab `v2.4.0`: Step 0 tells attendees to keep the harness they already have, or install Antigravity with a Gmail account.
+- 🍌 **Honest local AI story, per Constitution §11 (`workshop/CODELAB.md`, `workshop/skeleton.yaml`)**:
+  - Step 2 now says a new post gets the bundled placeholder cover in the Docker Compose stack, because its containers hold no Google credentials; Step 7 no longer claims local development reaches Vertex AI out of the box.
+- 🔁 **DevSite sync keeps destination-only metadata (`bin/sync_devsite_codelab.rb`)**:
+  - A sync used to replace the whole body of the destination file, dropping any `Key: Value` line that had been added under a step heading on the DevSite side. Such lines are now carried over under the matching step (matched by step number), and keys the source already states (`Duration`) are not duplicated. Covered by a contract test that runs the script twice against a fixture.
+- 📜 **Compliance with Constitution §11, Zero Gemini API Keys (`AGENTS.md`, `blog/`, `workshop/`)**:
+  - Removed static `GEMINI_API_KEY` tokens across application code (`blog/`), Docker Compose configurations (`compose.yaml`, `compose.prod.yaml`), environment templates (`.env.dist`, `.env.example`), and workshop instructions (`workshop/CODELAB.md`, `workshop/SKELETON.md`).
+  - Added anti-legacy diagnostic enforcement in `bin/workshop_diagnostics.rb` (`just workshop-test`) and automated contract tests in `test/test_codelab_sync_and_contracts.rb` and `test/test_docker_compose_contracts.rb`.
+- 🤖 **Agent-Friendly Codelab `.md` Switcher & Agentic Accessibility, an idea from Guillaume Laforge (`REQ-09`, `workshop/visualizer/server.rb`, `workshop/visualizer/build_ghpages.rb`)**:
+  - Added top-header **`📋 Copy Step .md`** (copies the active step's raw Markdown to clipboard for pasting into Claude/Gemini/Antigravity), **`📄 View .md`** (live toggle between rendered HTML and raw Markdown `<pre>` view), and **`🤖 Full .md`** (`CODELAB.md` / `/codelab.md`).
+  - Added `/codelab.md`, `/constitution.md`, `/skeleton.md`, and `/llms.txt` endpoints to `server.rb` and static artifacts to `workshop/build/`.
+  - Added `<link rel="alternate" type="text/markdown">`, `<meta name="ai-agent-instructions">`, semantic `<aside role="note" aria-label="AI Agent Instructions">`, and per-step `<script type="text/markdown" id="raw-md-step-N">` blocks so browser-based AI agents never get trapped by `display: none` pagination.
+- 🐳 **VS Code DevContainer & `.env.example` Fast-Track (`REQ-02`, `REQ-04`, `.devcontainer/devcontainer.json`, `.env.example`)**:
+  - Added `.devcontainer/devcontainer.json` for zero-compile `< 2 min` onboarding in VS Code DevContainers / GitHub Codespaces / Cloud Shell, and symlinked `.env.example -> .env.dist`.
+- 🧪 **Comprehensive Stress-Test & Automated Friction-Log Simulation Suite (`just test-stress`, `test/test_stress_and_automated_friction_log.rb`)**:
+  - Added **Automated Friction Log #1 (Clean-Room Student Journey Steps 0 → 8)** running in an isolated git clone with hermetic mock GCP CLIs (`gcloud`, `docker`, `terraform`), verifying the full progression from `SAMPLE_APP_CREDENTIALS` bootstrap (`Step 1`) through Time-Machine Stages 1 & 2 (`Steps 3 & 4`), Cloud SQL/Secret Manager (`Step 5`), `restore-gold` preserving student credentials (`Step 6`), Vertex AI ADC telemetry (`Step 7`), and all 7 cumulative invariants (`Step 8`).
+  - Added **Automated Friction Log #2 (Adversarial Chaos Traps & 4-Surface Sync Audit)** validating `bash -n` syntax across all 45+ bash blocks in `workshop/CODELAB.md` and `workshop/build/devsite/index.lab.md`, 1-to-1 image asset parity, standalone `Nanobanana` runtime inspection, and raw Markdown (`CODELAB.md`, `CONSTITUTION.md`, `SKELETON.md`, `llms.txt`) synchronization.
+
+### Fixed
+- 🐛 **Deep Audit Fixes Uncovered During Stress-Testing (`bin/workshop_diagnostics.rb`, `workshop/skeleton.yaml`, `test/test_workshop_diagnostics.rb`)**:
+  - Fixed `bin/workshop_diagnostics.rb` mutating `REPO_ROOT/blog/config/credentials.yml.enc` when invoked from an external `Dir.mktmpdir` workspace during tests.
+  - Added hermetic mock `gcloud` CLI in `test/test_workshop_diagnostics.rb`, speeding up the diagnostic test suite from **75.46s** down to **2.36s** (complying with Constitution §7 `< 5s` rule).
+  - Pinned `RBENV_VERSION=3.4.5` and isolated `RAILS_MASTER_KEY` across Step 2, 5, 6, and 7 evals in `workshop/skeleton.yaml` so host `.env` keys never collide with clean-room student keys.
+  - Added standalone `Pathname` fallback for `Nanobanana::IMAGES_DIR` in `blog/lib/nanobanana.rb` when required outside a booted Rails application.
+- 🔴 **Eradicated `GEMINI_API_KEY` Precedence Trap in Nano Banana Worker (`P0-1`, `blog/lib/nanobanana.rb`, `blog/compose.prod.yaml`, `blog/app/controllers/statuses_controller.rb`)**:
+  - Removed `Nanobanana.gemini_api_key` and `generate_via_gemini_api` (`generativelanguage.googleapis.com`). Previously, exporting `GEMINI_API_KEY="dummy-key"` in Step 6 caused `Nanobanana` to prefer the dummy key over live Cloud Run Service Account ADC, failing in background workers with HTTP 400 (`API key not valid`). `Nanobanana` now authenticates 100% via keyless Vertex AI Application Default Credentials (`GOOGLE_CLOUD_PROJECT` + ADC).
+- 🔴 **Fixed Fake Production IAP Auto-Login & Added `IAP_MOCK_EMAIL` Warning Banner (`P0-2`, `REQ-10`, `blog/compose.prod.yaml`, `blog/app/controllers/concerns/iap_authenticatable.rb`)**:
+  - Removed the `IAP_MOCK_EMAIL` entry from `blog/compose.prod.yaml` altogether (0.3.9 had already dropped its hardcoded `ricc@google.com` default), so production never reads a mock identity.
+  - When `ENV["IAP_MOCK_EMAIL"]` is used in local dev/test, `IapAuthenticatable` now displays an explicit warning banner (`⚠️ This is a fake IAP login based on ENV[IAP_MOCK_EMAIL] — do NOT use in prod!!!`).
+- 🛠️ **Codelab Remediations from Daniel Strebel's Friction Log (`REQ-01`..`REQ-10`, `workshop/CODELAB.md`, `cloudbuild.yaml`)**:
+  - **`REQ-01`**: Added prominent warning against running interactive `gcloud init` inside Cloud Shell or pre-provisioned workshop VMs.
+  - **`REQ-02`**: Documented `apt-get` native C/YAML build headers (`libyaml-dev`, `libffi-dev`, `libssl-dev`) before `rbenv install 3.4.5` and highlighted Docker Compose / DevContainers fast-track.
+  - **`REQ-03`**: Documented `RAILS_MASTER_KEY` cryptographic pairing and added `--set-secrets="RAILS_MASTER_KEY=rails-master-key:latest"` to Step 6 `gcloud run services update blog`; removed distracting `workshop-fun-secret` block.
+  - **`REQ-05`**: Added Docker layer caching (`--cache-from`) to `cloudbuild.yaml` and documented `bundle lock --add-platform x86_64-linux`.
+  - **`REQ-06`..`REQ-08`**: Added explicit `roles/aiplatform.user` IAM verification in Step 7, removed raw `TODO(riccardo)` placeholders, clarified TLS endpoint terminology in Step 3, and expanded `Conclusion & Clean Up` with surgical CLI + Terraform teardown commands.
+  - **`REQ-10` (Septober `#175`)**: Scrubbed all personal `@gmail.com` and `ricc@google.com` addresses from `.env.dist`, `blog/compose.prod.yaml`, `justfile`, `bin/`, and test suites, replacing them with RFC 2606 / workshop placeholders (`student@example.com`, `simulated-iap-account@example.com`) guarded by `test_no_personal_emails_in_public_configs_or_tests`.
+
 ## [0.3.10] - 2026-11-16
 ### Changed
 - 📜 **Constitution v1.5.0 (`docs/CONSTITUTION.md`)**:

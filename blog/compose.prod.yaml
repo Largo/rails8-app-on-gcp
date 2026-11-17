@@ -9,7 +9,6 @@ services:
       RAILS_ENV: production
       RAILS8_ENV_LAUNCH_MODE: "Hello! I am running serverless on Google Cloud Run."
       RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
       GCS_BUCKET: ${GCS_BUCKET}
       ACTIVE_STORAGE_SERVICE: ${ACTIVE_STORAGE_SERVICE:-google}
       GOOGLE_CLOUD_PROJECT: ${GOOGLE_CLOUD_PROJECT}
@@ -18,7 +17,6 @@ services:
       DATABASE_CACHE_URL: postgresql://${DB_USER:-rails_user}:${DB_PASSWORD}@cloudsql-proxy:5432/${DB_NAME:-rails_production}
       DATABASE_CABLE_URL: postgresql://${DB_USER:-rails_user}:${DB_PASSWORD}@cloudsql-proxy:5432/${DB_NAME:-rails_production}
       DB_POOL: "5"
-      IAP_MOCK_EMAIL: ${IAP_MOCK_EMAIL:-}
     ports:
       - "8080:8080"
     depends_on:
@@ -33,7 +31,6 @@ services:
       RAILS_ENV: production
       RAILS8_ENV_LAUNCH_MODE: "Hello! I am running serverless on Google Cloud Run."
       RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
       GCS_BUCKET: ${GCS_BUCKET}
       ACTIVE_STORAGE_SERVICE: ${ACTIVE_STORAGE_SERVICE:-google}
       GOOGLE_CLOUD_PROJECT: ${GOOGLE_CLOUD_PROJECT}

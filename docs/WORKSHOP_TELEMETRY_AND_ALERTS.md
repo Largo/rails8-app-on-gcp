@@ -64,14 +64,14 @@ The banners live under [`blog/app/views/workshop/alerts/`](file:///usr/local/goo
 ---
 
 ### 4. 🍌 Nano Banana AI Status Alert (`_ai_status.html.erb`)
-* **Condition:** `!Nanobanana.available?` (neither `GEMINI_API_KEY` nor Vertex AI ADC credentials are configured).
+* **Condition:** `!Nanobanana.available?` (Vertex AI ADC credentials + `GOOGLE_CLOUD_PROJECT` are not configured).
 * **Trigger:** Post cover generation falling back to the bundled vintage movie poster (`nanobanana_fake_cover.png`).
-* **Zero-Lag Invariant:** Evaluates purely via `ENV["GEMINI_API_KEY"].present?` or local ADC file inspection. **Zero network calls (< 1ms)** to ensure no startup penalty on `bin/dev`.
+* **Zero-Lag Invariant:** Evaluates purely via `ENV["GOOGLE_CLOUD_PROJECT"].present?` and local ADC file/metadata inspection. **Zero network calls (< 1ms)** to ensure no startup penalty on `bin/dev`.
 * **Style:**
   - **Border / Accent:** Soft crimson `#ef4444` (`border-left: 5px solid #ef4444`)
   - **Background:** Soft red `#fef2f2`
   - **Text Color:** `#991b1b` / `#b91c1c`
-* **Why Button (`Ask AI 🤖`):** Explains how to activate real live cover generation via Google AI Studio (`GEMINI_API_KEY`) or enterprise Vertex AI (`gcloud auth application-default login` + `GOOGLE_CLOUD_PROJECT`).
+* **Why Button (`Ask AI 🤖`):** Explains how to activate real live cover generation via enterprise Vertex AI (`gcloud auth application-default login` + `GOOGLE_CLOUD_PROJECT` or Cloud Run IAM Service Account `roles/aiplatform.user`).
 
 ---
 
@@ -120,7 +120,7 @@ All workshop alerts must follow these strict CSS design system principles:
 | **Admin User** | 👤 | `User.count == 0` | `#ef4444` (Red) | Teaches DB seeding & initial admin credentials bootstrap |
 | **Database** | 🟡 | SQLite / Local Postgres | `#eab308` (Yellow) | Distinguishes ephemeral storage from Google Cloud SQL |
 | **Storage** | 💾 | `storage_tier == :local` | `#64748b` (Slate) | Explains grayscale mode and previews private GCS bucket |
-| **AI Status** | 🍌 | `!Nanobanana.available?` | `#ef4444` (Red) | Explains fake cover fallback vs Gemini API / Vertex AI |
+| **AI Status** | 🍌 | `!Nanobanana.available?` | `#ef4444` (Red) | Explains fake cover fallback vs Vertex AI (ADC) |
 | **Queue Worker**| ⚠️ | `SolidQueue::Job.pending > 0` | `#f59e0b` (Amber) | Teaches multi-container Cloud Run worker sidecars |
 
 ---
@@ -135,7 +135,7 @@ To give instructors, students, and developers complete situational awareness wit
 1. **Compute & Runtime:** Distinguishes Google Cloud Run (`K_SERVICE` / serverless), Docker Compose container (`/.dockerenv` / `DOCKER_CONTAINER`), and Native Host Ruby.
 2. **Database Persistence:** Identifies Google Cloud SQL (via Auth Proxy mTLS) vs Local PostgreSQL container vs Ephemeral local SQLite3.
 3. **ActiveStorage Blobs:** Inspects ActiveStorage service (`:google_prod` / `:google_dev` with IAM blob signing vs `:local` disk) and returns `blobs_count` and `attachments_count` in 1ms.
-4. **Nano Banana AI Pipeline:** Confirms if live generation is active via Google AI Studio (`GEMINI_API_KEY`) or Vertex AI (ADC + project), or running in bundled fake cover fallback.
+4. **Nano Banana AI Pipeline:** Confirms if live generation is active via Vertex AI (ADC + `GOOGLE_CLOUD_PROJECT`), or running in bundled fake cover fallback.
 5. **Background Queues:** Displays pending and failed jobs in Solid Queue.
 6. **Workshop Counters:** Instant tally of published articles, registered admin accounts, and durable media blobs.
 
