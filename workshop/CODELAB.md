@@ -343,7 +343,7 @@ The application, local Mailpit SMTP server, and Adminer database viewer are now 
 3. **Observe the Visual Telemetry Badges:**
    - Notice the yellow environment banner and badges in the UI: `Notice: Ephemeral Database Active (POSTGRESQL)` and `[EPHEMERAL DB / STORAGE] 💾 Local`.
    - Notice the post watermark: The 🏠 stamp (`nanobanana_stamp_local.png` in the bottom-right corner of the cover image). This provides immediate visual confirmation that your assets and database are currently bound to ephemeral local storage.
-   - Create a post **without** a cover image and wait a few seconds: the Solid Queue worker attaches a bundled placeholder poster (`nanobanana_fake_cover.png`), not an AI-generated one. This is expected: the Docker Compose containers hold no Google credentials, so the app skips Vertex AI instead of failing (Constitution §6 and §11). The real AI poster arrives in Step 7, on Cloud Run.
+   - Create a post **without** a cover image and wait a few seconds: the app attaches a bundled placeholder poster (`nanobanana_fake_cover.png`), not an AI-generated one. This is expected: the Docker Compose containers hold no Google credentials, so the app skips Vertex AI instead of failing (Constitution §6 and §11). The real AI poster arrives in Step 7, on Cloud Run.
 
 ![Local blog homepage displaying ephemeral telemetry notices and badges](assets/images/step_2_homepage_ephemeral.png)
 
