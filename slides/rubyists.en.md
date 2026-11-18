@@ -477,7 +477,8 @@ The fast-start prompts for both paths are on the event page: workshop/events/202
 <div class="cols qr-right">
 <div>
 <p class="big-link"><a href="https://palladius.github.io/rails8-app-on-gcp/codelab/" target="_blank" rel="noopener noreferrer">palladius.github.io/rails8-app-on-gcp/codelab/</a></p>
-<p style="margin-top: 1.2em;">Google Cloud credits: codelab page 2.</p>
+<p style="margin-top: 1.2em;">Credits first, then follow the codelab:</p>
+<p class="fine" style="white-space: nowrap;"><a href="https://codelabs.developers.google.com/codelabs/rails8-on-google-cloud#1" target="_blank" rel="noopener noreferrer">codelabs.developers.google.com/codelabs/rails8-on-google-cloud#1</a></p>
 </div>
 <div style="text-align: center;">
 <img class="qr" src="images/codelab-ghpages-qr.png" alt="QR code for palladius.github.io/rails8-app-on-gcp/codelab/">
@@ -486,8 +487,8 @@ The fast-start prompts for both paths are on the event page: workshop/events/202
 
 <!--
 Scan the code or type the address. This is the up-to-date codelab, built from workshop/CODELAB.md on every merge.
-The link to claim your Google Cloud credits is on page 2 of the codelab, which is Step 0. Claim them before you create the project.
-Check this before the session: when this deck was written, the claim banner was on page 2 of the Google-hosted copy (codelabs.developers.google.com/codelabs/rails8-on-google-cloud#1, signed in with a Gmail account), and the GitHub Pages copy behind this QR code did not show it. If that is still true, say the address out loud or put it in the chat.
+Credits first. The claim banner is on page 2 (Step 0) of the Google-hosted copy of the codelab: the small address on the slide. Open it signed in with a personal Gmail account, claim the credits, then come back to the page behind the QR code.
+Do the lab on the GitHub Pages version, not on the Google-hosted copy: that copy is an older version of the text. The GitHub Pages version has no claim banner (checked on 18 Nov 2026).
 Leave this slide up until everyone has the page open.
 -->
 
