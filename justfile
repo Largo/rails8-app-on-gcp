@@ -57,7 +57,7 @@ workshop-dev *flags:
 
 # run the Marp presentation slides server (default port: 8082)
 slides port="8082":
-    @echo "Serving Marp slides on http://localhost:{{port}} (EN: /antigravity.en.md | IT: /antigravity.it.md | Why-Different: /why-different.md)"
+    @echo "Serving Marp slides on http://localhost:{{port}} (EN: /antigravity.en.md | IT: /antigravity.it.md | Why-Different: /why-different.md | Rubyists: /rubyists.en.md)"
     @if command -v marp >/dev/null 2>&1; then \
         PORT={{port}} marp --server slides --html; \
     else \
@@ -92,11 +92,13 @@ build-slides:
         marp slides/antigravity.en.md -o slides/dist/antigravity.en.html --html; \
         marp slides/antigravity.it.md -o slides/dist/antigravity.it.html --html; \
         marp slides/why-different.md -o slides/dist/why-different.html --html; \
+        marp slides/rubyists.en.md -o slides/dist/rubyists.en.html --html; \
     else \
         npx -y @marp-team/marp-cli slides/index.md -o slides/dist/index.html --html; \
         npx -y @marp-team/marp-cli slides/antigravity.en.md -o slides/dist/antigravity.en.html --html; \
         npx -y @marp-team/marp-cli slides/antigravity.it.md -o slides/dist/antigravity.it.html --html; \
         npx -y @marp-team/marp-cli slides/why-different.md -o slides/dist/why-different.html --html; \
+        npx -y @marp-team/marp-cli slides/rubyists.en.md -o slides/dist/rubyists.en.html --html; \
     fi
 
 
