@@ -56,3 +56,7 @@ marp slides/index.md --pdf -o slides/dist/slides.pdf
 4. **Why Is This Workshop Different? (`slides/why-different.md` $\to$ `slides/dist/why-different.html`)**:
    - Deep-dive showcase deck on architectural highlights (Structured JSON Logging, etc.).
 
+5. **For Rubyists: Kickoff Deck (`slides/rubyists.en.md` $\to$ `slides/dist/rubyists.en.html`)**:
+   - Created for **Helvetic Ruby 2026** (Zurich, 19 Nov 2026). 13 slides: a five-stop code tour of the blueprint (JSON logs, Solid Queue / Cache / Cable in three containers, private Active Storage, Cloud SQL Auth Proxy and Secret Manager, AI as a background job), one comparison slide, then the hands-on kickoff (any coding harness, codelab QR code, guardrails, the route).
+   - Slides carry code, a table, a diagram or one punchline; the narrative is in the speaker notes. `test/test_slides.rb` enforces a budget of 12 body words per slide.
+   - Presenter runbook and attendee cheat-sheet: [`workshop/narratives/for-rubyists/README.md`](../workshop/narratives/for-rubyists/README.md).

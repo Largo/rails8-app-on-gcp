@@ -2,6 +2,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.15] - 2026-11-18
+### Added
+- 💎 **Kickoff deck for Rubyists (`slides/rubyists.en.md`), made for Helvetic Ruby 2026 (Zurich, 19 Nov 2026)**:
+  - 13 slides in two acts. Act 1 is a five-stop code tour of the blueprint with short excerpts copied from the files: one-line JSON logs, Solid Queue / Cache / Cable in three containers, private Active Storage with keyless signed URLs, PostgreSQL through the Auth Proxy sidecar with secrets mounted at runtime, and AI as a background job with no API key. It ends with one comparison slide that maps the seams of Constitution §13 to other clouds and states that only the Google Cloud column is built and tested here.
+  - Act 2 is the hands-on kickoff: any coding harness (Constitution §12), a QR code for the GitHub Pages codelab (`slides/images/codelab-ghpages-qr.png`), the guardrails, and the route of the nine steps with their four deploys (`slides/images/rubyists-route.svg`).
+  - Slides carry code, a table, a diagram or one punchline; the narrative is in the speaker notes. The footer is set in CSS from Marp's pagination attributes (`19 Nov 2026, Zurich | NN/MM`).
+  - Published like the other decks: added to `just build-slides`, to the GitHub Pages workflow and to the fallback list in `workshop/visualizer/build_ghpages.rb`, so it is served as `slides/rubyists.en.html`.
+- 🧭 **Presenter runbook and attendee cheat-sheet (`workshop/narratives/for-rubyists/README.md`)**: a 25-minute timeline for the code tour with `file:line` references into `blog/`, the timings measured on a live run, and four questions attendees can paste into their harness.
+- 📅 **Event page (`workshop/events/20261119-helvetic-ruby/README.md`)**: schedule, codelab links (GitHub Pages first, the mirror marked as possibly lagging), where to claim the Google Cloud credits (page 2 of the codelab; the claim banner is rendered by the Google-hosted copy, not by the GitHub Pages copy), and fast-start prompts for Claude Code / Codex and for Antigravity.
+### Tests
+- 🧪 **`test/test_slides.rb`**: the Rubyists deck must exist with valid front matter and straight quotes, render without escaped markup, have 12 to 14 slides with speaker notes on each, stay within 12 body words per slide (titles, code, table cells, inline SVG and notes are not counted), and keep titles free of emoji and numbered kickers.
+
 ## [0.3.14] - 2026-11-18
 ### Fixed
 - 🚑 **`just workshop-rewind` and `just workshop-restore-gold` failed from `blog/` (`blog/justfile`, friction log FL015)**: Step 3 of the codelab says `cd blog` and nothing goes back up. From there `just workshop-rewind 2` (Step 4) and `just workshop-restore-gold` (Step 6) stopped with `error: justfile does not contain recipe`, so the next deploy silently reused the previous step's configuration. `blog/justfile` now sets `fallback := true`, which makes every root recipe reachable from `blog/`. Guarded by a new test in `test/test_justfile.rb`.

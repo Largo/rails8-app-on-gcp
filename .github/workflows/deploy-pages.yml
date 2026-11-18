@@ -49,6 +49,7 @@ jobs:
           marp slides/antigravity.en.md -o slides/dist/antigravity.en.html --html
           marp slides/antigravity.it.md -o slides/dist/antigravity.it.html --html
           marp slides/why-different.md -o slides/dist/why-different.html --html
+          marp slides/rubyists.en.md -o slides/dist/rubyists.en.html --html
 
       - name: Build Workshop Sites
         run: |

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 385" width="1160" height="385" role="img" aria-labelledby="title desc">
+  <title id="title">The workshop route: nine steps, four deploys</title>
+  <desc id="desc">Steps 0 to 8 in a row. Deploy 1 and Deploy 2 happen in Step 3, Deploy 3 in Step 4, Deploy 4a and 4b in Step 6. Deploys 1, 3 and 4a build a container image and take about 6 minutes each. Terraform in Step 1 takes 6 to 12 minutes.</desc>
+  <line x1="76" y1="165" x2="1084" y2="165" stroke="#c4c7c5" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="76.0" cy="165" r="34" fill="#ffffff" stroke="#9aa0a6" stroke-width="3"/>
+  <text x="76.0" y="175" text-anchor="middle" font-size="28" font-weight="700" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">0</text>
+  <text x="76.0" y="233" text-anchor="middle" font-size="21" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">Setup</text>
+  <circle cx="202.0" cy="165" r="34" fill="#ffffff" stroke="#9aa0a6" stroke-width="3"/>
+  <text x="202.0" y="175" text-anchor="middle" font-size="28" font-weight="700" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">1</text>
+  <text x="202.0" y="233" text-anchor="middle" font-size="21" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">Terraform</text>
+  <circle cx="328.0" cy="165" r="34" fill="#ffffff" stroke="#9aa0a6" stroke-width="3"/>
+  <text x="328.0" y="175" text-anchor="middle" font-size="28" font-weight="700" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">2</text>
+  <text x="328.0" y="233" text-anchor="middle" font-size="21" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">Local</text>
+  <text x="328.0" y="259" text-anchor="middle" font-size="21" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">stack</text>
+  <circle cx="454.0" cy="165" r="34" fill="#1a73e8" stroke="#1a73e8" stroke-width="3"/>
+  <text x="454.0" y="175" text-anchor="middle" font-size="28" font-weight="700" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">3</text>
+  <text x="454.0" y="233" text-anchor="middle" font-size="21" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">First</text>
+  <text x="454.0" y="259" text-anchor="middle" font-size="21" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">deploy</text>
+  <rect x="395.0" y="75" width="118" height="34" rx="17" fill="#1a73e8"/>
+  <text x="454.0" y="98" text-anchor="middle" font-size="19" font-weight="600" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">Deploy 1</text>
+  <rect x="395.0" y="31" width="118" height="34" rx="17" fill="#ffffff" stroke="#1a73e8" stroke-width="2"/>
+  <text x="454.0" y="54" text-anchor="middle" font-size="19" font-weight="600" fill="#1a73e8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">Deploy 2</text>
+  <circle cx="580.0" cy="165" r="34" fill="#1a73e8" stroke="#1a73e8" stroke-width="3"/>
+  <text x="580.0" y="175" text-anchor="middle" font-size="28" font-weight="700" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">4</text>
+  <text x="580.0" y="233" text-anchor="middle" font-size="21" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">Cloud</text>
+  <text x="580.0" y="259" text-anchor="middle" font-size="21" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">Storage</text>
+  <rect x="521.0" y="75" width="118" height="34" rx="17" fill="#1a73e8"/>
+  <text x="580.0" y="98" text-anchor="middle" font-size="19" font-weight="600" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">Deploy 3</text>
+  <circle cx="706.0" cy="165" r="34" fill="#ffffff" stroke="#9aa0a6" stroke-width="3"/>
+  <text x="706.0" y="175" text-anchor="middle" font-size="28" font-weight="700" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">5</text>
+  <text x="706.0" y="233" text-anchor="middle" font-size="21" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">Pre-flight</text>
+  <circle cx="832.0" cy="165" r="34" fill="#1a73e8" stroke="#1a73e8" stroke-width="3"/>
+  <text x="832.0" y="175" text-anchor="middle" font-size="28" font-weight="700" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">6</text>
+  <text x="832.0" y="233" text-anchor="middle" font-size="21" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">Three</text>
+  <text x="832.0" y="259" text-anchor="middle" font-size="21" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">containers</text>
+  <rect x="773.0" y="75" width="118" height="34" rx="17" fill="#1a73e8"/>
+  <text x="832.0" y="98" text-anchor="middle" font-size="19" font-weight="600" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">Deploy 4a</text>
+  <rect x="773.0" y="31" width="118" height="34" rx="17" fill="#ffffff" stroke="#1a73e8" stroke-width="2"/>
+  <text x="832.0" y="54" text-anchor="middle" font-size="19" font-weight="600" fill="#1a73e8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">Deploy 4b</text>
+  <circle cx="958.0" cy="165" r="34" fill="#ffffff" stroke="#9aa0a6" stroke-width="3"/>
+  <text x="958.0" y="175" text-anchor="middle" font-size="28" font-weight="700" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">7</text>
+  <text x="958.0" y="233" text-anchor="middle" font-size="21" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">AI</text>
+  <text x="958.0" y="259" text-anchor="middle" font-size="21" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">covers</text>
+  <circle cx="1084.0" cy="165" r="34" fill="#ffffff" stroke="#9aa0a6" stroke-width="3"/>
+  <text x="1084.0" y="175" text-anchor="middle" font-size="28" font-weight="700" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">8</text>
+  <text x="1084.0" y="233" text-anchor="middle" font-size="21" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">Quests</text>
+  <text x="202.0" y="101" text-anchor="middle" font-size="19" fill="#5f6368" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">6 to 12 min</text>
+  <rect x="42" y="337" width="56" height="30" rx="15" fill="#1a73e8"/>
+  <text x="112" y="359" font-size="20" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">builds an image: about 6 min</text>
+  <rect x="442" y="338" width="56" height="28" rx="14" fill="#ffffff" stroke="#1a73e8" stroke-width="2"/>
+  <text x="512" y="359" font-size="20" fill="#1a1a1a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">configuration update</text>
+</svg>
