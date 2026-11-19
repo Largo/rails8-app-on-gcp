@@ -2,6 +2,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.22] - 2026-11-19
+### Changed
+- 🖼️ **Pictures on the four cards of "What you need today" (`slides/rubyists.en.md`, slide 2)**: each card shows, at 50 percent opacity on its right side, a picture of what its link opens: the cover of the deck (`slides/images/need-slides.jpg`, rendered from the deck), the repository on GitHub (`need-repo.jpg`), the first page of the codelab on GitHub Pages (`need-codelab.jpg`) and page 2 of the Google-hosted codelab with the credits banner (`need-credits.jpg`). The three screenshots were taken signed out. The text keeps its own column on the left, so no text sits on top of a picture; long addresses wrap after a slash. The pictures do not take clicks: the links work as before.
+
 ## [0.3.21] - 2026-11-19
 ### Fixed
 - 🧭 **Slide numbers after "What you need today" became slide 2** (`workshop/narratives/for-rubyists/README.md`, `workshop/events/20261119-helvetic-ruby/README.md`, `slides/README.md`): the code tour is slides 6 to 10, the comparison is slide 11, the kickoff is slides 12 to 16, "Thank you" is 17 and the bonus slide is 18. The runbook timeline gains a row for the new slide and still ends the tour at minute 25.
