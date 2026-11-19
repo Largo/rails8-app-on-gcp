@@ -250,6 +250,41 @@ style: |
     letter-spacing: 0;
     white-space: nowrap;
   }
+  .need {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 1fr;
+    gap: 26px;
+  }
+  .need .card {
+    padding: 26px 30px;
+    background: #ffffff;
+    border: 1px solid #e0e3e7;
+    border-radius: 18px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  }
+  .need .card a {
+    display: block;
+  }
+  .need .card-title {
+    display: block;
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .need .card-url {
+    display: block;
+    margin-top: 10px;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+  .need .hint {
+    margin: 16px 0 0 0;
+    font-size: 22px;
+    color: #3c4043;
+  }
   img.shot {
     display: block;
     margin: 0 auto;
@@ -362,6 +397,40 @@ The first 25 minutes are a code tour with five stops. Then you open the codelab 
 The small link under our names is the workshop anthem, an MP3 made with Lyria. Click it and it plays inside the slide; click again to pause. It keeps playing when you move to another slide, so come back to the cover to stop it. Use it while people find a seat, if the room has speakers.
 The QR code at the bottom left opens these slides, the published deck, so people can follow on their own screen. The code is also a link.
 Reuse: the picture carries no event name. For another event, change only the small line at the bottom left and the footer.
+-->
+
+---
+
+<!-- _class: vcenter -->
+
+# What you need today
+
+<div class="need">
+<div class="card">
+<a href="https://palladius.github.io/rails8-app-on-gcp/slides/rubyists.en.html" target="_blank" rel="noopener noreferrer"><span class="card-title">These slides</span><span class="card-url">palladius.github.io/rails8-app-on-gcp/slides/rubyists.en.html</span></a>
+<p class="hint">Follow along.</p>
+</div>
+<div class="card">
+<a href="https://github.com/palladius/rails8-app-on-gcp" target="_blank" rel="noopener noreferrer"><span class="card-title">The repository</span><span class="card-url">github.com/palladius/rails8-app-on-gcp</span></a>
+<p class="hint">Clone it first.</p>
+</div>
+<div class="card">
+<a href="https://palladius.github.io/rails8-app-on-gcp/codelab/" target="_blank" rel="noopener noreferrer"><span class="card-title">The codelab</span><span class="card-url">palladius.github.io/rails8-app-on-gcp/codelab/</span></a>
+<p class="hint">Follow this one.</p>
+</div>
+<div class="card">
+<a href="https://codelabs.developers.google.com/codelabs/rails8-on-google-cloud#1" target="_blank" rel="noopener noreferrer"><span class="card-title">Your Google Cloud credits</span><span class="card-url">codelabs.developers.google.com/codelabs/rails8-on-google-cloud#1</span></a>
+<p class="hint">Claim, then come back.</p>
+</div>
+</div>
+
+<!--
+This is the slide people use on their own laptop. The QR code on the cover brought them to the deck; here every card is a link that opens in a new tab.
+Four things, in the order of the cards: these slides, the repository to clone, the codelab to follow, the credits to claim.
+There are two copies of the codelab, and that confuses people. The GitHub Pages copy is the current text (v2.5.2) and has no credits banner. The Google-hosted copy has the credits banner, but its text is from September.
+Say it once, slowly: follow the GitHub one, use the Google one only for the credits.
+The credits card opens page 2 of the Google-hosted copy. Sign in with a personal Gmail account, claim the credits, then come back to the codelab card.
+The codelab address comes back with a QR code on slide 13, when the hands-on part starts.
 -->
 
 ---
