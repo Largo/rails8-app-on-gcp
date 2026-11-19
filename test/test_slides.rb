@@ -202,6 +202,26 @@ class SlidesTest < Minitest::Test
     assert_empty offenders, "Titles must not carry emoji or '01 /' kickers:\n#{offenders.join}"
   end
 
+  # A reader of the narrative on GitHub must reach the rendered deck in one click.
+  # A link to the Markdown source shows raw Marp markup, not slides.
+  def test_rubyists_narrative_links_the_published_deck
+    narrative = File.read(File.join(REPO_ROOT, "workshop/narratives/for-rubyists/README.md"))
+
+    assert_includes narrative, "https://palladius.github.io/rails8-app-on-gcp/slides/rubyists.en.html",
+                    "workshop/narratives/for-rubyists/README.md must link the published (rendered) deck"
+  end
+
+  # The workshop is on the community day, which is not in the conference building.
+  def test_helvetic_ruby_event_pages_name_the_workshop_venue
+    event_page = File.read(File.join(REPO_ROOT, "workshop/events/20261119-helvetic-ruby/README.md"))
+    venue_line = event_page.lines.find { |line| line.start_with?("- **Venue:**") }.to_s
+    events_index_entry = File.read(File.join(REPO_ROOT, "workshop/events/README.md")).lines.find { |line| line.include?("20261119-helvetic-ruby") }.to_s
+
+    assert_match(/Paulus Akademie/, venue_line, "The venue of the workshop is Paulus Akademie")
+    assert_match(/Pfingstweidstrasse 28/, venue_line, "The venue line must carry the street address")
+    refute_match(/at Technopark/, events_index_entry, "The events index must not send people to the conference building")
+  end
+
   def test_rendered_png_images_can_be_generated
     stdout, stderr, status = Open3.capture3("#{marp_cmd} --images png --allow-local-files #{SLIDES_MD} -o #{SLIDES_DIST_DIR}/slide.png")
     assert_equal 0, status.exitstatus, "Marp image rendering failed: #{stderr}"
