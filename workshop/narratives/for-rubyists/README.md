@@ -2,7 +2,7 @@
 
 A narrative of the workshop for people who already know Rails and want to see what changes when the Rails 8 monolith moves to a cloud platform. It was written for Helvetic Ruby 2026 (Zurich, 19 Nov 2026) and works for any Ruby audience.
 
-- Deck, ready to present: <https://palladius.github.io/rails8-app-on-gcp/slides/rubyists.en.html> (17 slides; press `P` for the speaker notes)
+- Deck, ready to present: <https://palladius.github.io/rails8-app-on-gcp/slides/rubyists.en.html> (18 slides; press `P` for the speaker notes)
 - Deck source: [`slides/rubyists.en.md`](../../../slides/rubyists.en.md) (Marp Markdown, built to `slides/dist/rubyists.en.html`)
 - Event page: [`workshop/events/20261119-helvetic-ruby/README.md`](../../events/20261119-helvetic-ruby/README.md)
 - Codelab: [`workshop/CODELAB.md`](../../CODELAB.md)
@@ -27,44 +27,47 @@ All `file:line` references below were checked against the tree at the commit tha
 | Minute | Slide | Stop | What to open |
 |---|---|---|---|
 | 0 to 1 | 1 | Welcome | the cover; its small link plays the workshop anthem, its QR code opens the published deck |
-| 1 to 2 | 2 | Oh no, yet another blog app | the deployed app, if you have one |
-| 2 to 4 | 3 | Now look behind it | `.env.dist:42` (`IAP_ALLOWED_USERS`) |
-| 4 to 5 | 4 | What a clean container breaks | `blog/config/puma.rb:38` |
-| 5 to 8 | 5 | One-line JSON logs | `blog/config/environments/production.rb:44`, `blog/lib/google_json_formatter.rb:19` |
-| 8 to 12 | 6 | Solid Queue, Cache, Cable; three containers | `blog/config/environments/production.rb:64`, `blog/compose.prod.yaml:7` |
-| 12 to 15 | 7 | Private Active Storage, keyless signed URLs | `blog/config/storage.yml:63` |
-| 15 to 19 | 8 | Database through a sidecar, secrets at runtime | `blog/config/database.yml:44`, `blog/compose.prod.yaml:21` |
-| 19 to 23 | 9 | AI as a background job, no API key | `blog/app/jobs/generate_cover_image_job.rb:9`, `blog/lib/nanobanana.rb:97` |
-| 23 to 25 | 10 | The same blueprint elsewhere | `docs/CONSTITUTION.md`, section 13 |
-| 25 to 30 | 11 to 15 | Hands-on kickoff: harness, codelab, guardrails, route, questions | the codelab |
-| Wrap-up | 16 | Thank you | the last section of the codelab, "Conclusion & Clean Up" |
-| After the end | 17 | Bonus: the triumvirs of RubyCon Italy | nothing; show it only if there is time |
+| 1 to 2 | 2 | What you need today | the four links: slides, repository, codelab, credits |
+| 2 to 3 | 3 | Oh no, yet another blog app | the deployed app, if you have one |
+| 3 to 5 | 4 | Now look behind it | `.env.dist:42` (`IAP_ALLOWED_USERS`) |
+| 5 to 6 | 5 | What a clean container breaks | `blog/config/puma.rb:38` |
+| 6 to 9 | 6 | One-line JSON logs | `blog/config/environments/production.rb:44`, `blog/lib/google_json_formatter.rb:19` |
+| 9 to 12 | 7 | Solid Queue, Cache, Cable; three containers | `blog/config/environments/production.rb:64`, `blog/compose.prod.yaml:7` |
+| 12 to 15 | 8 | Private Active Storage, keyless signed URLs | `blog/config/storage.yml:63` |
+| 15 to 19 | 9 | Database through a sidecar, secrets at runtime | `blog/config/database.yml:44`, `blog/compose.prod.yaml:21` |
+| 19 to 23 | 10 | AI as a background job, no API key | `blog/app/jobs/generate_cover_image_job.rb:9`, `blog/lib/nanobanana.rb:97` |
+| 23 to 25 | 11 | The same blueprint elsewhere | `docs/CONSTITUTION.md`, section 13 |
+| 25 to 30 | 12 to 16 | Hands-on kickoff: harness, codelab, guardrails, route, questions | the codelab |
+| Wrap-up | 17 | Thank you | the last section of the codelab, "Conclusion & Clean Up" |
+| After the end | 18 | Bonus: the triumvirs of RubyCon Italy | nothing; show it only if there is time |
 
 ### What to say at each stop
 
 **Welcome (slide 1).** Emiliano Della Casa and Riccardo run RubyCon Italy and built this workshop together; Emiliano is not in the room. The message of the afternoon, in order: a blueprint, a codelab, practice with a coding harness.
 
-**The app (slide 2).** A blog with posts and comments, on purpose: everybody knows the domain, so nothing distracts from what is behind it. The footer of the screenshot says where the app runs and where its files live.
+**What you need (slide 2).** Four cards, each one a link: these slides, the repository, the codelab and the credits. People open the deck on their laptop with the QR code of the cover and click from here. Say once, slowly, that there are two copies of the codelab: follow the one on GitHub Pages, use the Google-hosted one only to claim the credits.
 
-**Behind it (slide 3).** Six things the app does and how. Each row is a part of the codelab: AI covers in Step 7, private uploads in Step 4, the three containers in Step 6, JSON logs from the first deploy in Step 3, secrets in Steps 5 and 6. The allow-list is one variable, `IAP_ALLOWED_USERS` (`.env.dist:42`, read by `blog/app/controllers/concerns/iap_authenticatable.rb:71` and turned into Terraform input by `iac/bin/terraform-apply.sh:44`); Identity-Aware Proxy itself is the optional Step 8.
+**The app (slide 3).** A blog with posts and comments, on purpose: everybody knows the domain, so nothing distracts from what is behind it. The footer of the screenshot says where the app runs and where its files live.
 
-**The problem (slide 4).** A default Rails 8 app keeps its state on disk, can run its jobs inside the web process (`blog/config/puma.rb:38`), and needs a master key. A platform that starts a clean container for every revision breaks all three. Attendees see it happen in Step 3 of the codelab.
+**Behind it (slide 4).** Six things the app does and how. Each row is a part of the codelab: AI covers in Step 7, private uploads in Step 4, the three containers in Step 6, JSON logs from the first deploy in Step 3, secrets in Steps 5 and 6. The allow-list is one variable, `IAP_ALLOWED_USERS` (`.env.dist:42`, read by `blog/app/controllers/concerns/iap_authenticatable.rb:71` and turned into Terraform input by `iac/bin/terraform-apply.sh:44`); Identity-Aware Proxy itself is the optional Step 8.
 
-**Stop 1, logs (slide 5).** `blog/config/environments/production.rb:44-52` picks the logger: the stock tagged logger when `LOG_FORMAT=plain`, otherwise a plain `ActiveSupport::Logger` on STDOUT with `GoogleJsonFormatter`. The formatter is one file of 68 lines: severity names at `blog/lib/google_json_formatter.rb:10-17`, the payload at `:24-28`, the trace id at `:32-40`, one JSON object per line at `:42`. A stack trace becomes one log entry.
+**The problem (slide 5).** A default Rails 8 app keeps its state on disk, can run its jobs inside the web process (`blog/config/puma.rb:38`), and needs a master key. A platform that starts a clean container for every revision breaks all three. Attendees see it happen in Step 3 of the codelab.
 
-**Stop 2, Solid trio and three containers (slide 6).** Solid Cache at `blog/config/environments/production.rb:64`, Solid Queue at `:67-68`, Solid Cable at `blog/config/cable.yml:11-12`. `blog/compose.prod.yaml` declares `web` (`:8`, the ingress container at `:12-13`), `worker` (`:32`, its command at `:36`) and `cloudsql-proxy` (`:53-54`). No Redis and no Kubernetes anywhere in the stack.
+**Stop 1, logs (slide 6).** `blog/config/environments/production.rb:44-52` picks the logger: the stock tagged logger when `LOG_FORMAT=plain`, otherwise a plain `ActiveSupport::Logger` on STDOUT with `GoogleJsonFormatter`. The formatter is one file of 68 lines: severity names at `blog/lib/google_json_formatter.rb:10-17`, the payload at `:24-28`, the trace id at `:32-40`, one JSON object per line at `:42`. A stack trace becomes one log entry.
 
-**Stop 3, private files (slide 7).** `blog/config/storage.yml:63-68`. The line that matters is `:67`, `iam: true`: Active Storage asks the IAM Credentials API to sign URLs, because a container on Cloud Run has an identity but no private key. The comment at `:1-17` tells the story. The bucket stays private, URLs expire, and there is no key file.
+**Stop 2, Solid trio and three containers (slide 7).** Solid Cache at `blog/config/environments/production.rb:64`, Solid Queue at `:67-68`, Solid Cable at `blog/config/cable.yml:11-12`. `blog/compose.prod.yaml` declares `web` (`:8`, the ingress container at `:12-13`), `worker` (`:32`, its command at `:36`) and `cloudsql-proxy` (`:53-54`). No Redis and no Kubernetes anywhere in the stack.
 
-**Stop 4, database and secrets (slide 8).** `blog/config/database.yml:44-49` explains the three ways production finds its database. `:50` is the switch and `:51-57` builds the PostgreSQL connection from `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` and `DB_PASSWORD`. `blog/compose.prod.yaml:21-24` sets the four plain ones; the file carries no secret values (see its header, `:1-6`). The password and `RAILS_MASTER_KEY` are mounted from Secret Manager by one `gcloud run services update` in Step 6 of the codelab (`workshop/CODELAB.md`, section "Deploy 4b: Secrets from Secret Manager").
+**Stop 3, private files (slide 8).** `blog/config/storage.yml:63-68`. The line that matters is `:67`, `iam: true`: Active Storage asks the IAM Credentials API to sign URLs, because a container on Cloud Run has an identity but no private key. The comment at `:1-17` tells the story. The bucket stays private, URLs expire, and there is no key file.
 
-**Stop 5, AI job (slide 9).** Saving a post without a cover enqueues the job (`blog/app/models/post.rb:17`). The job is `blog/app/jobs/generate_cover_image_job.rb:9-31`; the AI part is `:15-16`, the attachment `:20-24`, the Turbo refresh `:28`. `blog/lib/nanobanana.rb:97-103` chooses between Vertex AI and the bundled placeholder cover; `:168-174` fetches Application Default Credentials; `:198-201` is the placeholder. No API key exists in the repository (`docs/CONSTITUTION.md`, section 11).
+**Stop 4, database and secrets (slide 9).** `blog/config/database.yml:44-49` explains the three ways production finds its database. `:50` is the switch and `:51-57` builds the PostgreSQL connection from `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` and `DB_PASSWORD`. `blog/compose.prod.yaml:21-24` sets the four plain ones; the file carries no secret values (see its header, `:1-6`). The password and `RAILS_MASTER_KEY` are mounted from Secret Manager by one `gcloud run services update` in Step 6 of the codelab (`workshop/CODELAB.md`, section "Deploy 4b: Secrets from Secret Manager").
 
-**The same blueprint elsewhere (slide 10).** One comparison slide. `docs/CONSTITUTION.md`, section 13, lists the files where provider-specific code is allowed. Read the small print on the slide out loud: only the Google Cloud column is built and tested in this repo.
+**Stop 5, AI job (slide 10).** Saving a post without a cover enqueues the job (`blog/app/models/post.rb:17`). The job is `blog/app/jobs/generate_cover_image_job.rb:9-31`; the AI part is `:15-16`, the attachment `:20-24`, the Turbo refresh `:28`. `blog/lib/nanobanana.rb:97-103` chooses between Vertex AI and the bundled placeholder cover; `:168-174` fetches Application Default Credentials; `:198-201` is the placeholder. No API key exists in the repository (`docs/CONSTITUTION.md`, section 11).
 
-**Kickoff (slides 11 to 15).** Any harness works: `AGENTS.md` is the instruction file, `CLAUDE.md` and `GEMINI.md` are symlinks to it, and `.claude/skills` and `.agents/skills` point to `skills/`. Show the codelab QR code until everyone has it open. The Google Cloud credits link is on page 2 of the codelab (Step 0); see the event page for which copy of the codelab shows the claim banner. Slide 15, "Questions welcome", stays up while people work.
+**The same blueprint elsewhere (slide 11).** One comparison slide. `docs/CONSTITUTION.md`, section 13, lists the files where provider-specific code is allowed. Read the small print on the slide out loud: only the Google Cloud column is built and tested in this repo.
 
-**Closing (slides 16 and 17).** "Thank you" is the last slide of the talk: put it up at the wrap-up and remind people of the clean-up section at the end of the codelab. Slide 17 is a bonus picture of the three organisers of RubyCon Italy; show it only if the room is in the mood.
+**Kickoff (slides 12 to 16).** Any harness works: `AGENTS.md` is the instruction file, `CLAUDE.md` and `GEMINI.md` are symlinks to it, and `.claude/skills` and `.agents/skills` point to `skills/`. Show the codelab QR code until everyone has it open. The Google Cloud credits link is on page 2 of the codelab (Step 0); see the event page for which copy of the codelab shows the claim banner. Slide 16, "Questions welcome", stays up while people work.
+
+**Closing (slides 17 and 18).** "Thank you" is the last slide of the talk: put it up at the wrap-up and remind people of the clean-up section at the end of the codelab. Slide 18 is a bonus picture of the three organisers of RubyCon Italy; show it only if the room is in the mood.
 
 ### Honest expectations to set
 
@@ -79,8 +82,8 @@ Measured on live runs on 18 Nov 2026:
 ### If something goes wrong
 
 - No network for the deck: export a PDF beforehand with `marp slides/rubyists.en.md --pdf --allow-local-files -o rubyists.pdf`.
-- A stop runs long: skip slide 10, never the kickoff.
-- A question about another cloud provider: the honest answer is on slide 10. The pattern transfers, the code in this repository is only tested on Google Cloud.
+- A stop runs long: skip slide 11, never the kickoff.
+- A question about another cloud provider: the honest answer is on slide 11. The pattern transfers, the code in this repository is only tested on Google Cloud.
 
 ---
 
