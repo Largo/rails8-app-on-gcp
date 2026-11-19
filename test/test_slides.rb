@@ -176,8 +176,8 @@ class SlidesTest < Minitest::Test
     assert_empty html.scan(/&lt;(?:div|a|img|svg|table)\s+[a-z-]+=/), "Found HTML rendered as escaped text in rubyists.en.html"
   end
 
-  # 17 slides since v0.3.18: cover, three framing slides, five stops, one comparison, five kickoff
-  # slides, "Thank you" and one bonus slide. The range leaves room for one slide either way.
+  # 18 slides since v0.3.20: cover, "What you need today", three framing slides, five stops, one
+  # comparison, five kickoff slides, "Thank you" and one bonus slide. 18 is the top of the range.
   def test_rubyists_deck_has_16_to_18_slides_each_with_speaker_notes
     slides = marp_slides(RUBYISTS_MD)
     assert_includes 16..18, slides.size, "Expected 16 to 18 slides, found #{slides.size}"

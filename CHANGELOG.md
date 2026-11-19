@@ -2,6 +2,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.20] - 2026-11-19
+### Added
+- 🧭 **"What you need today", the new slide 2 of the Rubyists deck (`slides/rubyists.en.md`, now 18 slides)**: four cards, each one a link that opens in a new tab: these slides, the repository, the codelab on GitHub Pages (the one to follow), and the Google-hosted page where the credits are claimed. The QR code on the cover brings people to the deck; this slide is where they click the rest. The speaker notes explain the two copies of the codelab. Every later slide moves down by one; the slide numbers in the runbook and in the event page are updated in the next release.
+
 ## [0.3.19] - 2026-11-19
 ### Added
 - 🔳 **QR code of the deck on the cover of the Rubyists deck (`slides/rubyists.en.md`, `slides/images/rubyists-deck-qr.png`)**: it encodes `https://palladius.github.io/rails8-app-on-gcp/slides/rubyists.en.html`, so the room can open the slides on their own screen. The code is also a link, with the caption "These slides". It sits at the bottom left, under the anthem link; the title block moved up to make room. The PNG is 720 px wide with a quiet zone of four modules, and was decoded back to that exact address before it was committed.
