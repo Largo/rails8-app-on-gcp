@@ -154,6 +154,88 @@ style: |
     font-size: 0.68em;
     color: #5f6368;
   }
+  section.cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
+    padding-right: 54%;
+  }
+  section.cover h1 {
+    font-size: 1.9em;
+    line-height: 1.15;
+    margin-bottom: 0.3em;
+  }
+  section.cover h2 {
+    margin: 0 0 1.3em 0;
+    font-size: 1.25em;
+    font-weight: 700;
+    color: #b3122b;
+  }
+  section.cover .speaker {
+    margin: 0;
+    font-size: 0.95em;
+  }
+  section.cover .community {
+    margin: 0.15em 0 0 0;
+    font-size: 0.8em;
+    color: #5f6368;
+  }
+  section.cover .event {
+    position: absolute;
+    left: 60px;
+    bottom: 16px;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 300;
+    color: #6b7280;
+  }
+  .option {
+    position: absolute;
+    top: 18px;
+    left: 60px;
+    margin: 0;
+    padding: 4px 14px;
+    background: #ffff00;
+    color: #000000;
+    font-size: 22px;
+    font-weight: 800;
+  }
+  img.shot {
+    display: block;
+    margin: 0 auto;
+    max-height: 400px;
+    border-radius: 12px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  }
+  .caption {
+    margin-top: 0.7em;
+    text-align: center;
+    font-size: 0.95em;
+    color: #3c4043;
+  }
+  section.triumvirs {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    text-align: center;
+    padding-top: 30px;
+  }
+  section.triumvirs h1 {
+    margin: 0;
+    color: #b3122b;
+  }
+  section.triumvirs p {
+    margin: 0.1em 0 0 0;
+    font-size: 0.85em;
+    color: #3c4043;
+  }
+  img.portrait {
+    display: block;
+    width: 330px;
+    margin: 0 auto;
+    border-radius: 16px;
+  }
   table {
     width: 100%;
     font-size: 0.86em;
@@ -205,33 +287,115 @@ style: |
   }
 ---
 
+<!-- _class: cover -->
+
+![bg](images/rubycon-riccardo-emiliano-cover.jpg)
+
+<p class="option">Option 1: t-shirts</p>
+
 # Rails 8 on Google Cloud
 
+## From Rubyists, to Rubyists
+
+<p class="speaker">Riccardo Carlesso and Emiliano Della Casa</p>
+<p class="community">RubyCon Italy</p>
 <p class="event">Helvetic Ruby 2026, Zurich</p>
-<p class="speaker">Riccardo Carlesso</p>
-<p class="fine">Co-author: Emiliano Della Casa</p>
 
 <!--
 Welcome. Three hours, hands-on, 13:30 to 16:30.
-This workshop was co-created with Emiliano Della Casa of RubyCon Italy; a good part of what you will see is his work.
+Say it warmly: Emiliano and I run RubyCon Italy, your favourite Italian Ruby community. This is from Rubyists to Rubyists: I think you will like what I am about to show you.
+Emiliano co-created this workshop and a good part of what you will see is his work. He is not in the room today.
 What you get this afternoon, in this order:
 1. A Rails 8 app that is a solid blueprint for running the classic monolith in the cloud.
 2. A codelab that is fun to walk through.
 3. Practice working with a coding harness, whichever one you already use.
 The first 25 minutes are a code tour with five stops. Then you open the codelab and I stop talking.
+Reuse: the picture carries no event name. For another event, change only the small line at the bottom left and the footer.
+-->
+
+---
+
+<!-- _class: cover -->
+
+![bg](images/rubycon-riccardo-emiliano-togas.jpg)
+
+<p class="option">Option 2: togas</p>
+
+# Rails 8 on Google Cloud
+
+## From Rubyists, to Rubyists
+
+<p class="speaker">Riccardo Carlesso and Emiliano Della Casa</p>
+<p class="community">RubyCon Italy</p>
+<p class="event">Helvetic Ruby 2026, Zurich</p>
+
+<!--
+LOCAL REVIEW ONLY. Same cover with the toga picture. Riccardo picks one; the other is removed before publishing.
+-->
+
+---
+
+# Oh no, yet another blog app!
+
+<img class="shot" src="images/rubyists-blog-app.png" alt="The app in production: a page titled Posts with one post, a New post button, and a footer that says Google Cloud Run and GCS.">
+
+<p class="caption">Posts and comments. You have built this one before.</p>
+
+<!--
+Yes, from the outside it is the blog from every Rails tutorial since 2005: posts, comments, a form. I did that on purpose.
+You already know this app, so nothing about the domain gets in the way. Everything interesting today is behind it.
+Point at the footer of the screenshot: it says where the app runs and where its files live. That footer is the first hint.
+Next slide: what is behind it.
+-->
+
+---
+
+# Now look behind it
+
+| What the app does | How, and what you build today |
+|---|---|
+| Draws a cover for every post | AI in a background job, no API key |
+| Lets in only the people you list | An allow-list of Google accounts |
+| Keeps uploads private | Signed URLs that expire, no public bucket |
+| Runs jobs, cache and websockets | Solid Queue, Cache, Cable: three containers, no Redis |
+| Logs one JSON line per event | Searchable, with a trace id |
+| Holds no secret in the repo | Mounted at runtime |
+
+```bash
+IAP_ALLOWED_USERS="palladius@...,emiliano@...,YOUR_EMAIL@gmail.com"
+```
+
+<!--
+This is the back of the shop, and it is what the next six slides walk through in the code.
+Covers: create a post and a job asks Vertex AI for an image. No API key anywhere; the container's identity is enough. You do this in Step 7.
+Allow-list: one variable with the Google accounts that may open the app. Mine, Emiliano's, and yours. Terraform turns it into permissions; the optional Step 8 puts Identity-Aware Proxy in front. Say that Step 8 is optional and that few people reach it in three hours.
+Private uploads: Step 4. Solid trio in three containers: Step 6. Logs: from the first deploy in Step 3. Secrets: Steps 5 and 6.
+What is in it for you today: you leave with a deployed Rails 8 app that does all six, and with the files to copy into your own app.
 -->
 
 ---
 
 <!-- _class: vcenter -->
 
-# From `rails new` to the cloud
+<style scoped>
+table { font-size: 1.12em; }
+td, th { padding: 0.55em 0.7em; }
+</style>
 
-<p class="punchline">Disk state.<br>Jobs inside Puma.<br>One master key.</p>
+# What a clean container breaks
+
+| Rails 8 out of the box | On a platform that restarts you |
+|---|---|
+| SQLite and uploads live on disk | The disk is empty after every deploy |
+| Jobs run inside Puma | Jobs stop when no request is running |
+| One master key decrypts everything | The key has to live somewhere safe |
 
 <!--
-Rails 8 gives you a great single-server story: SQLite files and uploads under storage/, Solid Queue running inside Puma (blog/config/puma.rb line 38, SOLID_QUEUE_IN_PUMA), and a master key you carry around.
-On a platform that starts a clean container for every revision and scales to zero, each of these bites: the data is gone, the jobs stop when no request is running, and the key has to live somewhere.
+This slide is the problem statement for the whole afternoon.
+Rails 8 has a great single-server story. Three of its defaults assume the server keeps its disk and keeps running.
+1. Disk state: the SQLite files and Active Storage uploads sit under storage/. Cloud Run starts every revision from a clean image, so they are gone at the next deploy.
+2. Jobs inside Puma: with SOLID_QUEUE_IN_PUMA (blog/config/puma.rb line 38) the job runner lives in the web process. A platform that scales to zero freezes it between requests, so jobs wait.
+3. One master key: config/master.key decrypts the credentials. On your laptop it is a file; in the cloud it has to come from a secret store, not from the image and not from a plain variable.
 You will see all three happen for real in Step 3 of the codelab. The next five slides are how this repo answers them.
 -->
 
@@ -533,6 +697,9 @@ Nobody is expected to finish Step 8 today. Reaching Step 6 is a good afternoon.
 
 # Questions welcome
 
+<div class="cols wide-left">
+<div>
+
 <table class="contacts">
 <tr>
 <td><a href="https://github.com/palladius" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="#1a1a1a" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a></td>
@@ -551,8 +718,30 @@ Nobody is expected to finish Step 8 today. Reaching Step 6 is a good afternoon.
 </tr>
 </table>
 
+</div>
+<div>
+<img class="portrait" src="images/riccardo-rubyist.jpg" alt="Cartoon of Riccardo in a Roman toga, laughing, thumbs up, holding a red ruby gem.">
+</div>
+</div>
+
 <!--
 Keep this slide up while people work.
 Raise a hand as soon as you are stuck for more than five minutes: a blocked attendee is my problem, not yours.
 Issues and pull requests on the repository are welcome, today or later. The workshop was co-created with Emiliano Della Casa; Daniel Strebel and Guillaume Laforge contributed ideas that are credited in the changelog.
+-->
+
+---
+
+<!-- _class: triumvirs -->
+
+![bg](images/rubycon-triumvirs.jpg)
+
+# The triumvirs of RubyCon Italy
+
+Emiliano, Riccardo, Alessandro
+
+<!--
+Bonus slide, after the end. Show it only if there is time and the room is in the mood.
+The three organisers of RubyCon Italy, dressed as we were at the toga party on the beach. Emiliano and I built this workshop; Alessandro completes the triumvirate.
+If you liked this afternoon, come and say hello at the next RubyCon.
 -->
