@@ -25,13 +25,13 @@ Indicative. The code tour is fixed; the hands-on part moves at the pace of the r
 
 | Time | What |
 |---|---|
-| 13:30 | Welcome and code tour, five stops (slides 1 to 10) |
-| 13:55 | Hands-on kickoff: pick your harness, open the codelab, claim the credits (slides 11 to 15) |
+| 13:30 | Welcome and code tour, five stops (slides 1 to 11) |
+| 13:55 | Hands-on kickoff: pick your harness, open the codelab, claim the credits (slides 12 to 16) |
 | 14:00 | Steps 0 to 2: setup, Terraform, local stack |
 | 14:45 | Steps 3 and 4: first deploys, Cloud Storage |
 | 15:30 | Steps 5 and 6: pre-flight, three containers, secrets |
 | 16:10 | Step 7: AI covers. Step 8 for those who are ahead |
-| 16:20 | Wrap-up and clean-up reminder (slide 16) |
+| 16:20 | Wrap-up and clean-up reminder (slide 17) |
 | 16:30 | End |
 
 What to expect while you wait (measured on live runs on 18 Nov 2026):

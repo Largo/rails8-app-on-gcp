@@ -2,6 +2,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.21] - 2026-11-19
+### Fixed
+- 🧭 **Slide numbers after "What you need today" became slide 2** (`workshop/narratives/for-rubyists/README.md`, `workshop/events/20261119-helvetic-ruby/README.md`, `slides/README.md`): the code tour is slides 6 to 10, the comparison is slide 11, the kickoff is slides 12 to 16, "Thank you" is 17 and the bonus slide is 18. The runbook timeline gains a row for the new slide and still ends the tour at minute 25.
+
 ## [0.3.20] - 2026-11-19
 ### Added
 - 🧭 **"What you need today", the new slide 2 of the Rubyists deck (`slides/rubyists.en.md`, now 18 slides)**: four cards, each one a link that opens in a new tab: these slides, the repository, the codelab on GitHub Pages (the one to follow), and the Google-hosted page where the credits are claimed. The QR code on the cover brings people to the deck; this slide is where they click the rest. The speaker notes explain the two copies of the codelab. Every later slide moves down by one; the slide numbers in the runbook and in the event page are updated in the next release.
