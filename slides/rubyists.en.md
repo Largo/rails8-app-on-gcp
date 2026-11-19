@@ -253,15 +253,45 @@ style: |
   .need {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-auto-rows: 1fr;
-    gap: 26px;
+    grid-auto-rows: 232px;
+    gap: 24px;
   }
   .need .card {
-    padding: 26px 30px;
+    position: relative;
+    overflow: hidden;
+    padding: 24px 30px;
     background: #ffffff;
     border: 1px solid #e0e3e7;
     border-radius: 18px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  }
+  .need .card .shot-bg {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 46%;
+    height: 100%;
+    object-fit: cover;
+    object-position: left top;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .need .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 46%;
+    height: 100%;
+    z-index: 1;
+    background: linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0) 40%);
+    pointer-events: none;
+  }
+  .need .card a,
+  .need .card .hint {
+    position: relative;
+    z-index: 2;
+    max-width: 300px;
   }
   .need .card a {
     display: block;
@@ -277,8 +307,8 @@ style: |
     margin-top: 10px;
     font-size: 15px;
     font-weight: 500;
+    line-height: 1.35;
     letter-spacing: 0;
-    white-space: nowrap;
   }
   .need .hint {
     margin: 16px 0 0 0;
@@ -407,19 +437,23 @@ Reuse: the picture carries no event name. For another event, change only the sma
 
 <div class="need">
 <div class="card">
-<a href="https://palladius.github.io/rails8-app-on-gcp/slides/rubyists.en.html" target="_blank" rel="noopener noreferrer"><span class="card-title">These slides</span><span class="card-url">palladius.github.io/rails8-app-on-gcp/slides/rubyists.en.html</span></a>
+<img class="shot-bg" src="images/need-slides.jpg" alt="" style="object-position: 92% top;">
+<a href="https://palladius.github.io/rails8-app-on-gcp/slides/rubyists.en.html" target="_blank" rel="noopener noreferrer"><span class="card-title">These slides</span><span class="card-url">palladius.github.io/rails8-app-on-gcp/<wbr>slides/rubyists.en.html</span></a>
 <p class="hint">Follow along.</p>
 </div>
 <div class="card">
+<img class="shot-bg" src="images/need-repo.jpg" alt="">
 <a href="https://github.com/palladius/rails8-app-on-gcp" target="_blank" rel="noopener noreferrer"><span class="card-title">The repository</span><span class="card-url">github.com/palladius/rails8-app-on-gcp</span></a>
 <p class="hint">Clone it first.</p>
 </div>
 <div class="card">
-<a href="https://palladius.github.io/rails8-app-on-gcp/codelab/" target="_blank" rel="noopener noreferrer"><span class="card-title">The codelab</span><span class="card-url">palladius.github.io/rails8-app-on-gcp/codelab/</span></a>
+<img class="shot-bg" src="images/need-codelab.jpg" alt="">
+<a href="https://palladius.github.io/rails8-app-on-gcp/codelab/" target="_blank" rel="noopener noreferrer"><span class="card-title">The codelab</span><span class="card-url">palladius.github.io/rails8-app-on-gcp/<wbr>codelab/</span></a>
 <p class="hint">Follow this one.</p>
 </div>
 <div class="card">
-<a href="https://codelabs.developers.google.com/codelabs/rails8-on-google-cloud#1" target="_blank" rel="noopener noreferrer"><span class="card-title">Your Google Cloud credits</span><span class="card-url">codelabs.developers.google.com/codelabs/rails8-on-google-cloud#1</span></a>
+<img class="shot-bg" src="images/need-credits.jpg" alt="" style="object-position: right top;">
+<a href="https://codelabs.developers.google.com/codelabs/rails8-on-google-cloud#1" target="_blank" rel="noopener noreferrer"><span class="card-title">Your Google Cloud credits</span><span class="card-url">codelabs.developers.google.com/<wbr>codelabs/rails8-on-google-cloud#1</span></a>
 <p class="hint">Claim, then come back.</p>
 </div>
 </div>
@@ -427,6 +461,7 @@ Reuse: the picture carries no event name. For another event, change only the sma
 <!--
 This is the slide people use on their own laptop. The QR code on the cover brought them to the deck; here every card is a link that opens in a new tab.
 Four things, in the order of the cards: these slides, the repository to clone, the codelab to follow, the credits to claim.
+The faded picture on each card shows the page its link opens, so people recognise it when they land there.
 There are two copies of the codelab, and that confuses people. The GitHub Pages copy is the current text (v2.5.2) and has no credits banner. The Google-hosted copy has the credits banner, but its text is from September.
 Say it once, slowly: follow the GitHub one, use the Google one only for the credits.
 The credits card opens page 2 of the Google-hosted copy. Sign in with a personal Gmail account, claim the credits, then come back to the codelab card.
