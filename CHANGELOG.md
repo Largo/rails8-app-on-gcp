@@ -2,6 +2,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.18] - 2026-11-19
+### Changed
+- 💎 **Rubyists deck (`slides/rubyists.en.md`), 13 to 17 slides**:
+  - New cover: a full-bleed cartoon of the two authors in togas, the line "From Rubyists, to Rubyists", and a small "Workshop anthem" link that plays the MP3 inside the slide (click again to pause). The picture carries no event name, so it can be reused; the event is one small line of text.
+  - Two slides before the code tour: "Oh no, yet another blog app!" (a screenshot of the deployed app) and "Now look behind it" (what the app does and which part of the codelab builds it).
+  - "What a clean container breaks" replaces the three-phrase problem slide with a table: Rails 8 defaults on the left, what a platform that restarts you does to them on the right.
+  - "Questions welcome" gets a portrait, a new "Thank you" slide closes the talk with the repository and `ricc.rocks`, and one bonus slide shows the three organisers of RubyCon Italy.
+  - The page footer is hidden on the two full-bleed slides (cover and "Thank you"), where it sat on top of the picture.
+- 🧭 **Slide numbers in the runbook (`workshop/narratives/for-rubyists/README.md`) and in the event page (`workshop/events/20261119-helvetic-ruby/README.md`)** follow the new deck: the code tour is slides 5 to 9, the comparison is slide 10, the kickoff is slides 11 to 15. The timeline lists the new slides and still ends the tour at minute 25.
+
+### Tests
+- 🧪 **`test/test_slides.rb`**: the deck must have 16 to 18 slides (was 12 to 14), and every `images/...` file it references must exist. The body-text budget no longer counts the text of HTML links: Markdown links were never counted, and external links must be HTML anchors to open in a new tab.
+
 ## [0.3.17] - 2026-11-19
 ### Fixed
 - 📍 **Helvetic Ruby venue (`workshop/events/20261119-helvetic-ruby/README.md`, `workshop/events/README.md`)**: the workshop is at Paulus Akademie, Pfingstweidstrasse 28, 8005 Zurich, first floor (the Thursday community afternoon). The pages named Technopark, which is the building of the Friday conference.

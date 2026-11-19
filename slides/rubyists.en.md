@@ -190,16 +190,41 @@ style: |
     font-weight: 300;
     color: #6b7280;
   }
-  .option {
-    position: absolute;
-    top: 18px;
-    left: 60px;
-    margin: 0;
-    padding: 4px 14px;
-    background: #ffff00;
-    color: #000000;
-    font-size: 22px;
-    font-weight: 800;
+  section.cover::after {
+    display: none;
+  }
+  section.cover .anthem {
+    margin: 1.5em 0 0 0;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  section.cover .anthem a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  section.cover .anthem svg {
+    width: 22px;
+    height: 22px;
+  }
+  section.cover .anthem .pause,
+  section.cover .anthem a.playing .play {
+    display: none;
+  }
+  section.cover .anthem a.playing .pause {
+    display: inline;
+  }
+  section.thanks h1 {
+    font-size: 2.6em;
+    margin-bottom: 0.5em;
+  }
+  section.thanks .link {
+    margin: 0.35em 0 0 0;
+    font-size: 23px;
+    font-weight: 600;
+    letter-spacing: 0;
+    white-space: nowrap;
   }
   img.shot {
     display: block;
@@ -289,9 +314,7 @@ style: |
 
 <!-- _class: cover -->
 
-![bg](images/rubycon-riccardo-emiliano-cover.jpg)
-
-<p class="option">Option 1: t-shirts</p>
+![bg](images/rubycon-riccardo-emiliano-togas.jpg)
 
 # Rails 8 on Google Cloud
 
@@ -299,6 +322,7 @@ style: |
 
 <p class="speaker">Riccardo Carlesso and Emiliano Della Casa</p>
 <p class="community">RubyCon Italy</p>
+<p class="anthem"><a href="https://raw.githubusercontent.com/palladius/rails8-app-on-gcp/artifacts/issue-44/assets/lyria-3-pro-preview.mp3" target="_blank" rel="noopener noreferrer" onclick="var s=this.nextElementSibling;if(s.paused){s.play();this.classList.add('playing')}else{s.pause();this.classList.remove('playing')}return false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="none" stroke="#1a73e8" stroke-width="1.8"/><path class="play" d="M9.5 7.5v9l7.5-4.5z" fill="#1a73e8"/><path class="pause" d="M8.5 7.5h2.5v9h-2.5zM13 7.5h2.5v9H13z" fill="#1a73e8"/></svg>Workshop anthem</a><audio preload="none" src="https://raw.githubusercontent.com/palladius/rails8-app-on-gcp/artifacts/issue-44/assets/lyria-3-pro-preview.mp3"></audio></p>
 <p class="event">Helvetic Ruby 2026, Zurich</p>
 
 <!--
@@ -310,27 +334,8 @@ What you get this afternoon, in this order:
 2. A codelab that is fun to walk through.
 3. Practice working with a coding harness, whichever one you already use.
 The first 25 minutes are a code tour with five stops. Then you open the codelab and I stop talking.
+The small link under our names is the workshop anthem, an MP3 made with Lyria. Click it and it plays inside the slide; click again to pause. It keeps playing when you move to another slide, so come back to the cover to stop it. Use it while people find a seat, if the room has speakers.
 Reuse: the picture carries no event name. For another event, change only the small line at the bottom left and the footer.
--->
-
----
-
-<!-- _class: cover -->
-
-![bg](images/rubycon-riccardo-emiliano-togas.jpg)
-
-<p class="option">Option 2: togas</p>
-
-# Rails 8 on Google Cloud
-
-## From Rubyists, to Rubyists
-
-<p class="speaker">Riccardo Carlesso and Emiliano Della Casa</p>
-<p class="community">RubyCon Italy</p>
-<p class="event">Helvetic Ruby 2026, Zurich</p>
-
-<!--
-LOCAL REVIEW ONLY. Same cover with the toga picture. Riccardo picks one; the other is removed before publishing.
 -->
 
 ---
@@ -728,6 +733,25 @@ Nobody is expected to finish Step 8 today. Reaching Step 6 is a good afternoon.
 Keep this slide up while people work.
 Raise a hand as soon as you are stuck for more than five minutes: a blocked attendee is my problem, not yours.
 Issues and pull requests on the repository are welcome, today or later. The workshop was co-created with Emiliano Della Casa; Daniel Strebel and Guillaume Laforge contributed ideas that are credited in the changelog.
+-->
+
+---
+
+<!-- _class: cover thanks -->
+
+![bg](images/rubycon-riccardo-emiliano-tshirts.jpg)
+
+# Thank you
+
+<p class="link"><a href="https://github.com/palladius/rails8-app-on-gcp" target="_blank" rel="noopener noreferrer">github.com/palladius/rails8-app-on-gcp</a></p>
+<p class="link"><a href="https://ricc.rocks" target="_blank" rel="noopener noreferrer">ricc.rocks</a></p>
+
+<!--
+Last slide of the talk. Put it up at the wrap-up, around 16:20.
+Thank the room, and thank Emiliano, who co-created the workshop and is not here today.
+Remind everyone of the last section of the codelab, "Conclusion & Clean Up": remove the cloud resources so that nothing keeps running after today.
+The repository stays public: the app, the codelab and these slides are all in it. Stars, issues and pull requests are welcome.
+Reuse: this picture carries no event name either.
 -->
 
 ---
