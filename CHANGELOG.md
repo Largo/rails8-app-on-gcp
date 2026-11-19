@@ -2,7 +2,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-## [0.3.17] - 2026-11-18
+## [0.3.18] - 2026-11-19
 ### Added
 - 🔭 **Live checks in `just workshop-eval` (`lib/workshop_eval/live_check.rb`, `bin/workshop_eval.rb`, `workshop/skeleton.yaml`)**: Steps 3, 4 and 6 get one `[LIVE]` eval that asks Google Cloud what is really deployed, instead of reading files in the repository.
   - Step 3: the service exists and is Ready. Step 4: `/status.json` says files are on Cloud Storage. Step 6: three containers, the `rails-cloudrun-sa` service account, `RAILS_MASTER_KEY` and `DB_PASSWORD` mounted from Secret Manager on `web` and `worker`, no secret in plain text, Cloud SQL.
@@ -11,6 +11,14 @@ All notable changes to this project will be documented in this file.
   - A problem is a **warning that does not fail the run** (default). `WORKSHOP_EVAL_LIVE=strict` makes it a failure (for friction logs), `off` skips it. Without `GOOGLE_CLOUD_PROJECT` it is skipped.
 ### Changed
 - 🧹 **Clean Up page says what really happens (codelab `v2.5.3`)**: Option 1 (`terraform destroy`) currently stops with an error and leaves Cloud SQL running (issue #213); the page now says so and points workshop projects to Option 2.
+
+## [0.3.17] - 2026-11-19
+### Fixed
+- 📍 **Helvetic Ruby venue (`workshop/events/20261119-helvetic-ruby/README.md`, `workshop/events/README.md`)**: the workshop is at Paulus Akademie, Pfingstweidstrasse 28, 8005 Zurich, first floor (the Thursday community afternoon). The pages named Technopark, which is the building of the Friday conference.
+- 🔗 **Narrative for Rubyists (`workshop/narratives/for-rubyists/README.md`)**: the deck link now opens the published, rendered slides. It pointed only at the Marp Markdown source, which GitHub shows as raw markup.
+
+### Added
+- 🧪 Two tests in `test/test_slides.rb` guard both: the narrative must link the published deck, and the event pages must name the workshop venue.
 
 ## [0.3.16] - 2026-11-18
 ### Changed

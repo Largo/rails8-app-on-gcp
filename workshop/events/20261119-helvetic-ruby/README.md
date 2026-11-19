@@ -1,7 +1,7 @@
 # 🎤 Helvetic Ruby 2026 — Rails 8 on Google Cloud Workshop
 
 - **Date:** Thu 19 November 2026, 13:30-16:30
-- **Venue:** Technopark Zurich 🇨🇭
+- **Venue:** [Paulus Akademie](https://www.paulusakademie.ch/), Pfingstweidstrasse 28, 8005 Zurich, first floor 🇨🇭 (the Thursday community afternoon; the Friday conference is in a different building, Technopark)
 - **Official Website:** [https://helvetic-ruby.ch](https://helvetic-ruby.ch/)
 - **Speaker:** Riccardo Carlesso (workshop co-created with Emiliano Della Casa)
 - **Format:** 180-minute hands-on workshop for Rubyists; bring the coding harness you already use
