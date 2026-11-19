@@ -2,6 +2,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.23] - 2026-11-19
+### Fixed
+- 📬 **Mail jobs no longer fail in production when no SMTP server is configured** (`blog/lib/mail_delivery.rb`, `blog/config/environments/production.rb`): the password reset and welcome mails were sent to an SMTP server on `localhost:25`, which does not exist on Cloud Run, so every job failed and showed up in the "stuck jobs" banner. Mail delivery now comes from the environment: `SMTP_HOST` turns on SMTP (`SMTP_PORT` defaults to 587, `SMTP_USERNAME` and `SMTP_PASSWORD` are optional). Without `SMTP_HOST`, Rails logs the mail and skips the delivery, so the job completes. `APP_HOST` sets the host for links in mail; it stays `example.com` when unset. Covered by `blog/test/lib/mail_delivery_test.rb`.
+
 ## [0.3.22] - 2026-11-19
 ### Changed
 - 🖼️ **Pictures on the four cards of "What you need today" (`slides/rubyists.en.md`, slide 2)**: each card shows, at 50 percent opacity on its right side, a picture of what its link opens: the cover of the deck (`slides/images/need-slides.jpg`, rendered from the deck), the repository on GitHub (`need-repo.jpg`), the first page of the codelab on GitHub Pages (`need-codelab.jpg`) and page 2 of the Google-hosted codelab with the credits banner (`need-credits.jpg`). The three screenshots were taken signed out. The text keeps its own column on the left, so no text sits on top of a picture; long addresses wrap after a slash. The pictures do not take clicks: the links work as before.
