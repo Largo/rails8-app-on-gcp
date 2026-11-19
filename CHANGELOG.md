@@ -2,6 +2,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.19] - 2026-11-19
+### Added
+- 🔳 **QR code of the deck on the cover of the Rubyists deck (`slides/rubyists.en.md`, `slides/images/rubyists-deck-qr.png`)**: it encodes `https://palladius.github.io/rails8-app-on-gcp/slides/rubyists.en.html`, so the room can open the slides on their own screen. The code is also a link, with the caption "These slides". It sits at the bottom left, under the anthem link; the title block moved up to make room. The PNG is 720 px wide with a quiet zone of four modules, and was decoded back to that exact address before it was committed.
+
 ## [0.3.18] - 2026-11-19
 ### Changed
 - 💎 **Rubyists deck (`slides/rubyists.en.md`), 13 to 17 slides**:
