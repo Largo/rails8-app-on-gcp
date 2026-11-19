@@ -2,6 +2,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.17] - 2026-11-19
+### Fixed
+- 📍 **Helvetic Ruby venue (`workshop/events/20261119-helvetic-ruby/README.md`, `workshop/events/README.md`)**: the workshop is at Paulus Akademie, Pfingstweidstrasse 28, 8005 Zurich, first floor (the Thursday community afternoon). The pages named Technopark, which is the building of the Friday conference.
+- 🔗 **Narrative for Rubyists (`workshop/narratives/for-rubyists/README.md`)**: the deck link now opens the published, rendered slides. It pointed only at the Marp Markdown source, which GitHub shows as raw markup.
+
+### Added
+- 🧪 Two tests in `test/test_slides.rb` guard both: the narrative must link the published deck, and the event pages must name the workshop venue.
+
 ## [0.3.16] - 2026-11-18
 ### Changed
 - 🧭 **Codelab `v2.5.2` (`workshop/CODELAB.md`, friction log FL015)**:

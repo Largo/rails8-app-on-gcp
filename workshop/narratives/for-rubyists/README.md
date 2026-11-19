@@ -2,7 +2,8 @@
 
 A narrative of the workshop for people who already know Rails and want to see what changes when the Rails 8 monolith moves to a cloud platform. It was written for Helvetic Ruby 2026 (Zurich, 19 Nov 2026) and works for any Ruby audience.
 
-- Deck: [`slides/rubyists.en.md`](../../../slides/rubyists.en.md) (13 slides, built to `slides/dist/rubyists.en.html`)
+- Deck, ready to present: <https://palladius.github.io/rails8-app-on-gcp/slides/rubyists.en.html> (13 slides; press `P` for the speaker notes)
+- Deck source: [`slides/rubyists.en.md`](../../../slides/rubyists.en.md) (Marp Markdown, built to `slides/dist/rubyists.en.html`)
 - Event page: [`workshop/events/20261119-helvetic-ruby/README.md`](../../events/20261119-helvetic-ruby/README.md)
 - Codelab: [`workshop/CODELAB.md`](../../CODELAB.md)
 
