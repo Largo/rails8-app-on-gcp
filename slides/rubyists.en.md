@@ -215,6 +215,30 @@ style: |
   section.cover .anthem a.playing .pause {
     display: inline;
   }
+  section.cover.with-qr {
+    padding-bottom: 128px;
+  }
+  section.cover .deck-qr {
+    position: absolute;
+    left: 60px;
+    bottom: 44px;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  section.cover .deck-qr a {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    color: #5f6368;
+  }
+  section.cover .deck-qr img {
+    display: block;
+    width: 156px;
+    height: 156px;
+    border-radius: 10px;
+  }
   section.thanks h1 {
     font-size: 2.6em;
     margin-bottom: 0.5em;
@@ -312,7 +336,7 @@ style: |
   }
 ---
 
-<!-- _class: cover -->
+<!-- _class: cover with-qr -->
 
 ![bg](images/rubycon-riccardo-emiliano-togas.jpg)
 
@@ -323,6 +347,7 @@ style: |
 <p class="speaker">Riccardo Carlesso and Emiliano Della Casa</p>
 <p class="community">RubyCon Italy</p>
 <p class="anthem"><a href="https://raw.githubusercontent.com/palladius/rails8-app-on-gcp/artifacts/issue-44/assets/lyria-3-pro-preview.mp3" target="_blank" rel="noopener noreferrer" onclick="var s=this.nextElementSibling;if(s.paused){s.play();this.classList.add('playing')}else{s.pause();this.classList.remove('playing')}return false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="none" stroke="#1a73e8" stroke-width="1.8"/><path class="play" d="M9.5 7.5v9l7.5-4.5z" fill="#1a73e8"/><path class="pause" d="M8.5 7.5h2.5v9h-2.5zM13 7.5h2.5v9H13z" fill="#1a73e8"/></svg>Workshop anthem</a><audio preload="none" src="https://raw.githubusercontent.com/palladius/rails8-app-on-gcp/artifacts/issue-44/assets/lyria-3-pro-preview.mp3"></audio></p>
+<p class="deck-qr"><a href="https://palladius.github.io/rails8-app-on-gcp/slides/rubyists.en.html" target="_blank" rel="noopener noreferrer"><img src="images/rubyists-deck-qr.png" alt="QR code for palladius.github.io/rails8-app-on-gcp/slides/rubyists.en.html"><span>These slides</span></a></p>
 <p class="event">Helvetic Ruby 2026, Zurich</p>
 
 <!--
@@ -335,6 +360,7 @@ What you get this afternoon, in this order:
 3. Practice working with a coding harness, whichever one you already use.
 The first 25 minutes are a code tour with five stops. Then you open the codelab and I stop talking.
 The small link under our names is the workshop anthem, an MP3 made with Lyria. Click it and it plays inside the slide; click again to pause. It keeps playing when you move to another slide, so come back to the cover to stop it. Use it while people find a seat, if the room has speakers.
+The QR code at the bottom left opens these slides, the published deck, so people can follow on their own screen. The code is also a link.
 Reuse: the picture carries no event name. For another event, change only the small line at the bottom left and the footer.
 -->
 

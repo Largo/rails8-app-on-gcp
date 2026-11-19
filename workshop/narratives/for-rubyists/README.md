@@ -26,7 +26,7 @@ All `file:line` references below were checked against the tree at the commit tha
 
 | Minute | Slide | Stop | What to open |
 |---|---|---|---|
-| 0 to 1 | 1 | Welcome | the cover; its small link plays the workshop anthem |
+| 0 to 1 | 1 | Welcome | the cover; its small link plays the workshop anthem, its QR code opens the published deck |
 | 1 to 2 | 2 | Oh no, yet another blog app | the deployed app, if you have one |
 | 2 to 4 | 3 | Now look behind it | `.env.dist:42` (`IAP_ALLOWED_USERS`) |
 | 4 to 5 | 4 | What a clean container breaks | `blog/config/puma.rb:38` |
